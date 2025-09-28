@@ -32,7 +32,7 @@
                         Welcome back!
                     </p>
                 </div>
-                <form class="mt-8 space-y-6" action="#" method="POST">
+                <form id="login-form" class="mt-8 space-y-6" method="POST">
                     <input type="hidden" name="remember" value="true" />
                     <div class="rounded-md shadow-sm -space-y-px">
                         <div>
@@ -68,5 +68,18 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', function(event) {
+            // Prevent the default form submission
+            event.preventDefault();
+
+            // Here you would typically send the data to a server to verify credentials.
+            // For this example, we'll just simulate a successful login and redirect.
+
+            // Redirect to the user dashboard
+            window.location.href = './dashboard.html';
+        });
+    </script>
 </body>
 </html>

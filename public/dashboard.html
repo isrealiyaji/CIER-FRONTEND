@@ -24,7 +24,7 @@
             <!-- Report New Incident Form -->
             <div class="p-6 bg-white rounded-lg shadow-md lg:col-span-1">
                 <h2 class="mb-4 text-2xl font-bold text-gray-800">Report a New Incident</h2>
-                <form class="space-y-4">
+                <form id="report-incident-form" class="space-y-4">
                     <div>
                         <label for="incident-type" class="block text-sm font-medium text-gray-700">Incident Type</label>
                         <select id="incident-type" name="incident-type" class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
@@ -37,7 +37,7 @@
                     </div>
                     <div>
                         <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                        <textarea id="description" name="description" rows="4" class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="Provide a detailed description..."></textarea>
+                        <textarea id="description" name="description" rows="4" class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="Provide a detailed description..." required></textarea>
                     </div>
                     <div>
                         <label for="location" class="block text-sm font-medium text-gray-700">Location (Optional)</label>
@@ -66,7 +66,7 @@
                                 <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Date</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200">
+                        <tbody id="incidents-table-body" class="divide-y divide-gray-200">
                             <!-- Example Row 1 -->
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">#1024</td>
@@ -100,5 +100,42 @@
             </div>
         </div>
     </main>
+
+    <script>
+        document.getElementById('report-incident-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const incidentType = document.getElementById('incident-type').value;
+            const description = document.getElementById('description').value;
+            const location = document.getElementById('location').value;
+            
+            // Create new table row
+            const tableBody = document.getElementById('incidents-table-body');
+            const newRow = document.createElement('tr');
+            
+            // Generate a simple ID (in a real app this would come from the server)
+            const newId = '#1025'; // This would be dynamic in a real implementation
+            
+            // Set row content
+            newRow.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap">${newId}</td>
+                <td class="px-6 py-4 whitespace-nowrap">${description}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex px-2 text-xs font-semibold leading-5 text-blue-800 bg-blue-100 rounded-full">Reported</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">${new Date().toISOString().split('T')[0]}</td>
+            `;
+            
+            // Add to top of table
+            tableBody.insertBefore(newRow, tableBody.firstChild);
+            
+            // Reset form
+            this.reset();
+            
+            // Show success message (optional)
+            alert('Incident reported successfully!');
+        });
+    </script>
 </body>
 </html>
