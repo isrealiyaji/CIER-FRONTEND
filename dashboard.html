@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Dashboard - CIER</title>
     <script src="https://cdn.tailwindcss.com"></script>
-  </head>
-  <body class="bg-gray-100">
+</head>
+<body class="bg-gray-100">
     <!-- Header -->
     <header class="bg-white shadow-md">
       <nav class="container flex items-center justify-between p-4 mx-auto">
@@ -40,6 +40,7 @@
               <select
                 id="incident-type"
                 name="incident-type"
+                required
                 class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option>Theft</option>
@@ -59,9 +60,9 @@
                 id="description"
                 name="description"
                 rows="4"
-                class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Provide a detailed description..."
                 required
+                class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Enter incident details..."
               ></textarea>
             </div>
             <div>
@@ -112,9 +113,9 @@
             </div>
             <button
               type="submit"
-              class="w-full px-4 py-2 font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              class="w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              Submit Report
+              Submit Incident Report
             </button>
           </form>
         </div>
@@ -151,48 +152,7 @@
                 </tr>
               </thead>
               <tbody id="incidents-table-body" class="divide-y divide-gray-200">
-                <!-- Example Row 1 -->
-                <tr>
-                  <td class="px-6 py-4 whitespace-nowrap">#1024</td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    Loud noise complaint at apartment 3B.
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span
-                      class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full"
-                      >Resolved</span
-                    >
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">2023-10-26</td>
-                </tr>
-                <!-- Example Row 2 -->
-                <tr>
-                  <td class="px-6 py-4 whitespace-nowrap">#1023</td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    Suspicious vehicle parked on Oak Street.
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span
-                      class="inline-flex px-2 text-xs font-semibold leading-5 text-yellow-800 bg-yellow-100 rounded-full"
-                      >Under Investigation</span
-                    >
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">2023-10-25</td>
-                </tr>
-                <!-- Example Row 3 -->
-                <tr>
-                  <td class="px-6 py-4 whitespace-nowrap">#1021</td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    Broken streetlight at the park entrance.
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span
-                      class="inline-flex px-2 text-xs font-semibold leading-5 text-blue-800 bg-blue-100 rounded-full"
-                      >Reported</span
-                    >
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">2023-10-24</td>
-                </tr>
+                <!-- Incident rows will be dynamically inserted here -->
               </tbody>
             </table>
           </div>
@@ -201,85 +161,149 @@
     </main>
 
     <script>
-      document
-        .getElementById("report-incident-form")
-        .addEventListener("submit", function (e) {
+      document.addEventListener('DOMContentLoaded', () => {
+        const incidentForm = document.getElementById('report-incident-form');
+        const incidentsTbody = document.getElementById('incidents-table-body');
+        const API_URL = 'http://localhost:5000/api/incidents'; // Adjust if your backend URL is different
+
+        // Function to get badge color based on status
+        const getStatusBadge = (status) => {
+          switch (status.toLowerCase()) {
+            case 'resolved':
+              return 'bg-green-100 text-green-800';
+            case 'under investigation':
+              return 'bg-yellow-100 text-yellow-800';
+            case 'reported':
+              return 'bg-blue-100 text-blue-800';
+            default:
+              return 'bg-gray-100 text-gray-800';
+          }
+        };
+
+        // Function to fetch incidents from the backend
+        const fetchIncidents = async () => {
+          try {
+            const response = await fetch(API_URL);
+            if (!response.ok) {
+              throw new Error('Failed to fetch incidents.');
+            }
+            const incidents = await response.json();
+
+            // Clear existing rows
+            incidentsTbody.innerHTML = '';
+
+            if (incidents.length === 0) {
+                incidentsTbody.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No incidents reported yet.</td></tr>`;
+                return;
+            }
+
+            // Populate table with fetched incidents
+            incidents.forEach(incident => {
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap">#${incident.id}</td>
+                <td class="px-6 py-4">${incident.description}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full ${getStatusBadge(incident.status)}">
+                    ${incident.status}
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">${new Date(incident.created_at).toLocaleDateString()}</td>
+              `;
+              incidentsTbody.appendChild(row);
+            });
+          } catch (error) {
+            console.error('Error fetching incidents:', error);
+            incidentsTbody.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-red-500">Error loading incidents.</td></tr>`;
+          }
+        };
+
+        // Handle form submission
+        incidentForm.addEventListener('submit', async (e) => {
           e.preventDefault();
 
-          // Get form values
-          const incidentType = document.getElementById("incident-type").value;
-          const description = document.getElementById("description").value;
-          const location = document.getElementById("location").value;
+          const incidentType = document.getElementById('incident-type').value;
+          const description = document.getElementById('description').value;
+          const location = document.getElementById('location').value;
+          // Note: Media upload requires more complex handling (e.g., FormData) and is not included in this basic setup.
 
-          // Create new table row
-          const tableBody = document.getElementById("incidents-table-body");
-          const newRow = document.createElement("tr");
+          const newIncident = {
+            type: incidentType,
+            description: description,
+            location: location || null,
+            // Assuming user_id is handled by the backend (e.g., from a session)
+          };
 
-          // Generate a simple ID (in a real app this would come from the server)
-          const newId = "#1025"; // This would be dynamic in a real implementation
+          try {
+            const response = await fetch(API_URL, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(newIncident),
+            });
 
-          // Set row content
-          newRow.innerHTML = `
-                <td class="px-6 py-4 whitespace-nowrap">${newId}</td>
-                <td class="px-6 py-4 whitespace-nowrap">${description}</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="inline-flex px-2 text-xs font-semibold leading-5 text-blue-800 bg-blue-100 rounded-full">Reported</span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">${
-                  new Date().toISOString().split("T")[0]
-                }</td>
-            `;
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to submit incident report.');
+            }
 
-          // Add to top of table
-          tableBody.insertBefore(newRow, tableBody.firstChild);
-
-          // Reset form
-          this.reset();
-
-          // Show success message (optional)
-          alert("Incident reported successfully!");
+            // Reset form and refresh incidents list
+            incidentForm.reset();
+            fetchIncidents();
+          } catch (error) {
+            console.error('Error submitting incident:', error);
+            alert(`Failed to submit incident report: ${error.message}`);
+          }
         });
 
-      // Get current location functionality
-      document
-        .getElementById("get-location-btn")
-        .addEventListener("click", function () {
-          if (navigator.geolocation) {
+        // Get current location functionality
+        document
+          .getElementById("get-location-btn")
+          .addEventListener("click", function () {
+            const locationInput = document.getElementById("location");
+
+            if (!navigator.geolocation) {
+              alert("Geolocation is not supported by your browser.");
+              return;
+            }
+
+            locationInput.placeholder = "Getting location...";
+
             navigator.geolocation.getCurrentPosition(
-              function (position) {
+              (position) => {
                 const lat = position.coords.latitude;
-                const lng = position.coords.longitude;
-                document.getElementById("location").value = `Lat: ${lat.toFixed(
-                  5
-                )}, Lng: ${lng.toFixed(5)}`;
+                const lon = position.coords.longitude;
+                locationInput.value = `Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(
+                  4
+                )}`;
               },
-              function (error) {
+              (error) => {
                 let errorMessage = "Unable to retrieve your location. ";
                 switch (error.code) {
                   case error.PERMISSION_DENIED:
-                    errorMessage += "Permission was denied.";
+                    errorMessage +=
+                      "Permission was denied. Please ensure you are using a secure (https) connection and have granted location permissions.";
                     break;
                   case error.POSITION_UNAVAILABLE:
                     errorMessage += "Location information is unavailable.";
                     break;
                   case error.TIMEOUT:
-                    errorMessage +=
-                      "The request to get user location timed out.";
+                    errorMessage += "The request to get user location timed out.";
                     break;
                   case error.UNKNOWN_ERROR:
                     errorMessage += "An unknown error occurred.";
                     break;
                 }
-                alert(
-                  errorMessage +
-                    " Please ensure you are using a secure (https) connection and have granted location permissions."
-                );
+                alert(errorMessage);
+                locationInput.placeholder = "e.g., Corner of Main St & 1st Ave";
               }
             );
-          } else {
-            alert("Geolocation is not supported by this browser.");
-          }
-        });
+          });
+
+        // Initial fetch of incidents when the page loads
+        fetchIncidents();
+      });
     </script>
-  </body>
+</body>
 </html>
