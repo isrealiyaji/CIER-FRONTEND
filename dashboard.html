@@ -1,141 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>User Dashboard - CIER</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100">
+  </head>
+  <body class="bg-gray-100">
     <!-- Header -->
     <header class="bg-white shadow-md">
-        <nav class="container flex items-center justify-between p-4 mx-auto">
-            <h1 class="text-xl font-bold text-indigo-600">CIER Dashboard</h1>
-            <div>
-                <span class="mr-4 text-gray-700">Welcome, User!</span>
-                <a href="/login.html" class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600">Logout</a>
-            </div>
-        </nav>
+      <nav class="container flex items-center justify-between p-4 mx-auto">
+        <h1 class="text-xl font-bold text-indigo-600">CIER Dashboard</h1>
+        <div>
+          <span class="mr-4 text-gray-700">Welcome, User!</span>
+          <a
+            href="/login.html"
+            class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600"
+            >Logout</a
+          >
+        </div>
+      </nav>
     </header>
 
     <!-- Main Content -->
     <main class="container p-4 mx-auto mt-6">
-        <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
-            <!-- Report New Incident Form -->
-            <div class="p-6 bg-white rounded-lg shadow-md lg:col-span-1">
-                <h2 class="mb-4 text-2xl font-bold text-gray-800">Report a New Incident</h2>
-                <form id="report-incident-form" class="space-y-4">
-                    <div>
-                        <label for="incident-type" class="block text-sm font-medium text-gray-700">Incident Type</label>
-                        <select id="incident-type" name="incident-type" class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-                            <option>Theft</option>
-                            <option>Vandalism</option>
-                            <option>Public Disturbance</option>
-                            <option>Medical Emergency</option>
-                            <option>Other</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                        <textarea id="description" name="description" rows="4" class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="Provide a detailed description..." required></textarea>
-                    </div>
-                    <div>
-                        <label for="location" class="block text-sm font-medium text-gray-700">Location (Optional)</label>
-                        <input type="text" id="location" name="location" class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., Corner of Main St & 1st Ave">
-                    </div>
-                    <div>
-                        <label for="media" class="block text-sm font-medium text-gray-700">Upload Media (Optional)</label>
-                        <input type="file" id="media" name="media" class="block w-full mt-1 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-                    </div>
-                    <button type="submit" class="w-full px-4 py-2 font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Submit Report
-                    </button>
-                </form>
+      <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <!-- Report New Incident Form -->
+        <div class="p-6 bg-white rounded-lg shadow-md lg:col-span-1">
+          <h2 class="mb-4 text-2xl font-bold text-gray-800">
+            Report a New Incident
+          </h2>
+          <form id="report-incident-form" class="space-y-4">
+            <div>
+              <label
+                for="incident-type"
+                class="block text-sm font-medium text-gray-700"
+                >Incident Type</label
+              >
+              <select
+                id="incident-type"
+                name="incident-type"
+                class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <option>Theft</option>
+                <option>Vandalism</option>
+                <option>Public Disturbance</option>
+                <option>Medical Emergency</option>
+                <option>Other</option>
+              </select>
             </div>
-
-            <!-- My Incidents List -->
-            <div class="p-6 bg-white rounded-lg shadow-md lg:col-span-2">
-                <h2 class="mb-4 text-2xl font-bold text-gray-800">My Reported Incidents</h2>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full bg-white">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">ID</th>
-                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Description</th>
-                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Status</th>
-                                <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Date</th>
-                            </tr>
-                        </thead>
-                        <tbody id="incidents-table-body" class="divide-y divide-gray-200">
-                            <!-- Example Row 1 -->
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">#1024</td>
-                                <td class="px-6 py-4 whitespace-nowrap">Loud noise complaint at apartment 3B.</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">Resolved</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">2023-10-26</td>
-                            </tr>
-                            <!-- Example Row 2 -->
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">#1023</td>
-                                <td class="px-6 py-4 whitespace-nowrap">Suspicious vehicle parked on Oak Street.</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex px-2 text-xs font-semibold leading-5 text-yellow-800 bg-yellow-100 rounded-full">Under Investigation</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">2023-10-25</td>
-                            </tr>
-                             <!-- Example Row 3 -->
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">#1021</td>
-                                <td class="px-6 py-4 whitespace-nowrap">Broken streetlight at the park entrance.</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex px-2 text-xs font-semibold leading-5 text-blue-800 bg-blue-100 rounded-full">Reported</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">2023-10-24</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div>
+              <label
+                for="description"
+                class="block text-sm font-medium text-gray-700"
+                >Description</label
+              >
+              <textarea
+                id="description"
+                name="description"
+                rows="4"
+                class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Provide a detailed description..."
+                required
+              ></textarea>
             </div>
+            <div>
+              <label
+                for="location"
+                class="block text-sm font-medium text-gray-700"
+                >Location (Optional)</label
+              >
+              <div class="flex items-center mt-1 space-x-2">
+                <input
+                  type="text"
+                  id="location"
+                  name="location"
+                  class="block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="e.g., Corner of Main St & 1st Ave"
+                />
+                <button
+                  type="button"
+                  id="get-location-btn"
+                  class="flex-shrink-0 px-3 py-2 text-sm font-medium text-white bg-indigo-500 rounded-md hover:bg-indigo-600"
+                  title="Get My Current Location"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-5 h-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label for="media" class="block text-sm font-medium text-gray-700"
+                >Upload Media (Optional)</label
+              >
+              <input
+                type="file"
+                id="media"
+                name="media"
+                class="block w-full mt-1 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+              />
+            </div>
+            <button
+              type="submit"
+              class="w-full px-4 py-2 font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Submit Report
+            </button>
+          </form>
         </div>
+
+        <!-- My Incidents List -->
+        <div class="p-6 bg-white rounded-lg shadow-md lg:col-span-2">
+          <h2 class="mb-4 text-2xl font-bold text-gray-800">
+            My Reported Incidents
+          </h2>
+          <div class="overflow-x-auto">
+            <table class="min-w-full bg-white">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th
+                    class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
+                  >
+                    ID
+                  </th>
+                  <th
+                    class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
+                  >
+                    Description
+                  </th>
+                  <th
+                    class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
+                  >
+                    Status
+                  </th>
+                  <th
+                    class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
+                  >
+                    Date
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="incidents-table-body" class="divide-y divide-gray-200">
+                <!-- Example Row 1 -->
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">#1024</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    Loud noise complaint at apartment 3B.
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span
+                      class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full"
+                      >Resolved</span
+                    >
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">2023-10-26</td>
+                </tr>
+                <!-- Example Row 2 -->
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">#1023</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    Suspicious vehicle parked on Oak Street.
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span
+                      class="inline-flex px-2 text-xs font-semibold leading-5 text-yellow-800 bg-yellow-100 rounded-full"
+                      >Under Investigation</span
+                    >
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">2023-10-25</td>
+                </tr>
+                <!-- Example Row 3 -->
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">#1021</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    Broken streetlight at the park entrance.
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span
+                      class="inline-flex px-2 text-xs font-semibold leading-5 text-blue-800 bg-blue-100 rounded-full"
+                      >Reported</span
+                    >
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">2023-10-24</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </main>
 
     <script>
-        document.getElementById('report-incident-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Get form values
-            const incidentType = document.getElementById('incident-type').value;
-            const description = document.getElementById('description').value;
-            const location = document.getElementById('location').value;
-            
-            // Create new table row
-            const tableBody = document.getElementById('incidents-table-body');
-            const newRow = document.createElement('tr');
-            
-            // Generate a simple ID (in a real app this would come from the server)
-            const newId = '#1025'; // This would be dynamic in a real implementation
-            
-            // Set row content
-            newRow.innerHTML = `
+      document
+        .getElementById("report-incident-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          // Get form values
+          const incidentType = document.getElementById("incident-type").value;
+          const description = document.getElementById("description").value;
+          const location = document.getElementById("location").value;
+
+          // Create new table row
+          const tableBody = document.getElementById("incidents-table-body");
+          const newRow = document.createElement("tr");
+
+          // Generate a simple ID (in a real app this would come from the server)
+          const newId = "#1025"; // This would be dynamic in a real implementation
+
+          // Set row content
+          newRow.innerHTML = `
                 <td class="px-6 py-4 whitespace-nowrap">${newId}</td>
                 <td class="px-6 py-4 whitespace-nowrap">${description}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <span class="inline-flex px-2 text-xs font-semibold leading-5 text-blue-800 bg-blue-100 rounded-full">Reported</span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap">${new Date().toISOString().split('T')[0]}</td>
+                <td class="px-6 py-4 whitespace-nowrap">${
+                  new Date().toISOString().split("T")[0]
+                }</td>
             `;
-            
-            // Add to top of table
-            tableBody.insertBefore(newRow, tableBody.firstChild);
-            
-            // Reset form
-            this.reset();
-            
-            // Show success message (optional)
-            alert('Incident reported successfully!');
+
+          // Add to top of table
+          tableBody.insertBefore(newRow, tableBody.firstChild);
+
+          // Reset form
+          this.reset();
+
+          // Show success message (optional)
+          alert("Incident reported successfully!");
+        });
+
+      // Get current location functionality
+      document
+        .getElementById("get-location-btn")
+        .addEventListener("click", function () {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              function (position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                document.getElementById("location").value = `Lat: ${lat.toFixed(
+                  5
+                )}, Lng: ${lng.toFixed(5)}`;
+              },
+              function (error) {
+                let errorMessage = "Unable to retrieve your location. ";
+                switch (error.code) {
+                  case error.PERMISSION_DENIED:
+                    errorMessage += "Permission was denied.";
+                    break;
+                  case error.POSITION_UNAVAILABLE:
+                    errorMessage += "Location information is unavailable.";
+                    break;
+                  case error.TIMEOUT:
+                    errorMessage +=
+                      "The request to get user location timed out.";
+                    break;
+                  case error.UNKNOWN_ERROR:
+                    errorMessage += "An unknown error occurred.";
+                    break;
+                }
+                alert(
+                  errorMessage +
+                    " Please ensure you are using a secure (https) connection and have granted location permissions."
+                );
+              }
+            );
+          } else {
+            alert("Geolocation is not supported by this browser.");
+          }
         });
     </script>
-</body>
+  </body>
 </html>
