@@ -166,7 +166,7 @@
         const incidentForm = document.getElementById("report-incident-form");
         const incidentsTbody = document.getElementById("incidents-table-body");
         const logoutButton = document.getElementById("logout-button");
-        const API_URL = "http://localhost:5000/incidents/"; // Adjust if your backend URL is different
+        const API_URL = "http://localhost:3800/incidents"; // Adjust if your backend URL is different
 
         const token = localStorage.getItem("token");
         if (!token) {
@@ -192,8 +192,8 @@
           try {
             const response = await fetch(API_URL, {
               headers: {
-                "Authorization": `Bearer ${token}`
-              }
+                Authorization: `Bearer ${token}`,
+              },
             });
             if (!response.ok) {
               throw new Error("Failed to fetch incidents.");
@@ -233,20 +233,17 @@
           }
         };
 
-        // Handle form submission
+        // Function to handle form submission
         incidentForm.addEventListener("submit", async (e) => {
           e.preventDefault();
 
-          const incidentType = document.getElementById("incident-type").value;
-          const description = document.getElementById("description").value;
-          const location = document.getElementById("location").value;
-          // Note: Media upload requires more complex handling (e.g., FormData) and is not included in this basic setup.
-
+          const formData = new FormData(incidentForm);
           const newIncident = {
-            type: incidentType,
-            description: description,
-            location: location || null,
-            // Assuming user_id is handled by the backend (e.g., from a session)
+            type: formData.get("incident-type"),
+            description: formData.get("description"),
+            location: formData.get("location"),
+            // Note: Media upload requires different handling (multipart/form-data)
+            // This example focuses on text data.
           };
 
           try {
@@ -254,21 +251,19 @@
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                Authorization: `Bearer ${token}`,
               },
               body: JSON.stringify(newIncident),
             });
 
             if (!response.ok) {
-              const errorData = await response.json();
-              throw new Error(
-                errorData.message || "Failed to submit incident report."
-              );
+              throw new Error("Failed to submit incident.");
             }
 
-            // Reset form and refresh incidents list
-            incidentForm.reset();
+            // Refresh incidents list and clear the form
             fetchIncidents();
+            incidentForm.reset();
+            alert("Incident reported successfully!");
           } catch (error) {
             console.error("Error submitting incident:", error);
             alert("Failed to submit incident. Please try again.");
