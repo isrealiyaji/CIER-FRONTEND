@@ -15,6 +15,7 @@
           <span class="mr-4 text-gray-700">Welcome, User!</span>
           <a
             href="/login.html"
+            id="logout-button"
             class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600"
             >Logout</a
           >
@@ -164,7 +165,13 @@
       document.addEventListener("DOMContentLoaded", () => {
         const incidentForm = document.getElementById("report-incident-form");
         const incidentsTbody = document.getElementById("incidents-table-body");
+        const logoutButton = document.getElementById("logout-button");
         const API_URL = "http://localhost:5000/incidents/"; // Adjust if your backend URL is different
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+          window.location.href = "/login.html";
+        }
 
         // Function to get badge color based on status
         const getStatusBadge = (status) => {
@@ -183,7 +190,11 @@
         // Function to fetch incidents from the backend
         const fetchIncidents = async () => {
           try {
-            const response = await fetch(API_URL);
+            const response = await fetch(API_URL, {
+              headers: {
+                "Authorization": `Bearer ${token}`
+              }
+            });
             if (!response.ok) {
               throw new Error("Failed to fetch incidents.");
             }
@@ -243,6 +254,7 @@
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
               },
               body: JSON.stringify(newIncident),
             });
@@ -259,8 +271,15 @@
             fetchIncidents();
           } catch (error) {
             console.error("Error submitting incident:", error);
-            alert(`Failed to submit incident report: ${error.message}`);
+            alert("Failed to submit incident. Please try again.");
           }
+        });
+
+        // Handle logout
+        logoutButton.addEventListener("click", (e) => {
+          e.preventDefault(); // Prevent the default link behavior
+          localStorage.removeItem("token"); // Clear the user's token
+          window.location.href = "/login.html"; // Redirect to login page
         });
 
         // Get current location functionality
