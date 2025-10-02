@@ -238,26 +238,25 @@
           e.preventDefault();
 
           const formData = new FormData(incidentForm);
-          const newIncident = {
-            type: formData.get("incident-type"),
-            description: formData.get("description"),
-            location: formData.get("location"),
-            // Note: Media upload requires different handling (multipart/form-data)
-            // This example focuses on text data.
-          };
+          // The 'type' field from the select needs to be correctly named if the backend expects 'type'
+          formData.set("type", formData.get("incident-type"));
+          formData.delete("incident-type");
 
           try {
             const response = await fetch(API_URL, {
               method: "POST",
               headers: {
-                "Content-Type": "application/json",
+                // Do NOT set 'Content-Type'. The browser will set it automatically
+                // to 'multipart/form-data' with the correct boundary.
                 Authorization: `Bearer ${token}`,
               },
-              body: JSON.stringify(newIncident),
+              body: formData, // Send the FormData object directly
             });
 
             if (!response.ok) {
-              throw new Error("Failed to submit incident.");
+              // Try to get more specific error info from the backend response
+              const errorData = await response.json().catch(() => ({ message: "Failed to submit incident." }));
+              throw new Error(errorData.message || "Failed to submit incident.");
             }
 
             // Refresh incidents list and clear the form
@@ -266,7 +265,7 @@
             alert("Incident reported successfully!");
           } catch (error) {
             console.error("Error submitting incident:", error);
-            alert("Failed to submit incident. Please try again.");
+            alert(error.message || "Failed to submit incident. Please try again.");
           }
         });
 
