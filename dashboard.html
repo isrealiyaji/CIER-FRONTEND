@@ -255,17 +255,17 @@
 
             if (!response.ok) {
               // Try to get more specific error info from the backend response
-              const errorData = await response.json().catch(() => ({ message: "Failed to submit incident." }));
-              throw new Error(errorData.message || "Failed to submit incident.");
+              const errorData = await response.json().catch(() => ({ message: 'Could not parse error response.' }));
+              throw new Error(errorData.message || `Server responded with status: ${response.status}`);
             }
 
-            // Refresh incidents list and clear the form
-            fetchIncidents();
-            incidentForm.reset();
-            alert("Incident reported successfully!");
+            // If submission is successful
+            alert("Incident submitted successfully!");
+            incidentForm.reset(); // Clear the form
+            fetchIncidents(); // Refresh the list of incidents
           } catch (error) {
             console.error("Error submitting incident:", error);
-            alert(error.message || "Failed to submit incident. Please try again.");
+            alert(`Failed to submit incident. Reason: ${error.message}`);
           }
         });
 
