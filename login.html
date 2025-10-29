@@ -13,73 +13,132 @@
   </head>
   <body class="bg-gray-100">
     <div class="flex items-center justify-center min-h-screen">
-        <div class="flex w-full max-w-4xl mx-4 bg-white rounded-lg shadow-lg md:mx-0">
-            <!-- Left Panel -->
-            <div class="hidden w-1/2 bg-indigo-600 md:block">
-                <div class="flex flex-col items-center justify-center h-full p-12 text-white">
-                    <h1 class="text-3xl font-bold">CIER</h1>
-                    <p class="mt-2 text-center">Community Incident & Emergency Reporting</p>
-                    <p class="mt-10 text-sm text-center">Your safety is our priority. Report incidents to help us build a safer community together.</p>
-                </div>
-            </div>
-            <!-- Right Panel (Login Form) -->
-            <div class="w-full p-8 md:w-1/2">
-                <div class="text-center">
-                    <h2 class="text-3xl font-extrabold text-gray-900">
-                        Sign in to your account
-                    </h2>
-                    <p class="mt-2 text-sm text-gray-600">
-                        Welcome back!
-                    </p>
-                </div>
-                <form id="login-form" class="mt-8 space-y-6" method="POST">
-                    <input type="hidden" name="remember" value="true" />
-                    <div class="rounded-md shadow-sm -space-y-px">
-                        <div>
-                            <label for="email-address" class="sr-only">Email address</label>
-                            <input id="email-address" name="email" type="email" autocomplete="email" required class="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Email address" />
-                        </div>
-                        <div>
-                            <label for="password" class="sr-only">Password</label>
-                            <input id="password" name="password" type="password" autocomplete="current-password" required class="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Password" />
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <div class="text-sm">
-                            <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">
-                                Forgot your password?
-                            </a>
-                        </div>
-                    </div>
-
-                    <div>
-                        <button type="submit" class="relative flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md group hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            Sign in
-                        </button>
-                    </div>
-                </form>
-                <p class="mt-4 text-sm text-center text-gray-600">
-                    Don't have an account?
-                    <a href="./register.html" class="font-medium text-indigo-600 hover:text-indigo-500">
-                        Register here
-                    </a>
-                </p>
-            </div>
+      <div
+        class="flex w-full max-w-4xl mx-4 bg-white rounded-lg shadow-lg md:mx-0"
+      >
+        <!-- Left Panel -->
+        <div class="hidden w-1/2 bg-indigo-600 md:block">
+          <div
+            class="flex flex-col items-center justify-center h-full p-12 text-white"
+          >
+            <h1 class="text-3xl font-bold">CIER</h1>
+            <p class="mt-2 text-center">
+              Community Incident & Emergency Reporting
+            </p>
+            <p class="mt-10 text-sm text-center">
+              Your safety is our priority. Report incidents to help us build a
+              safer community together.
+            </p>
+          </div>
         </div>
+        <!-- Right Panel (Login Form) -->
+        <div class="w-full p-8 md:w-1/2">
+          <div class="text-center">
+            <h2 class="text-3xl font-extrabold text-gray-900">
+              Sign in to your account
+            </h2>
+            <p class="mt-2 text-sm text-gray-600">Welcome back!</p>
+          </div>
+          <form id="login-form" class="mt-8 space-y-6" method="POST">
+            <input type="hidden" name="remember" value="true" />
+            <div class="rounded-md shadow-sm -space-y-px">
+              <div>
+                <label for="email-address" class="sr-only">Email address</label>
+                <input
+                  id="email-address"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  required
+                  class="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  placeholder="Email address"
+                />
+              </div>
+              <div>
+                <label for="password" class="sr-only">Password</label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autocomplete="current-password"
+                  required
+                  class="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  placeholder="Password"
+                />
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <div class="text-sm">
+                <a
+                  href="#"
+                  class="font-medium text-indigo-600 hover:text-indigo-500"
+                >
+                  Forgot your password?
+                </a>
+              </div>
+            </div>
+
+            <div>
+              <button
+                type="submit"
+                class="relative flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md group hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Sign in
+              </button>
+            </div>
+          </form>
+          <p class="mt-4 text-sm text-center text-gray-600">
+            Don't have an account?
+            <a
+              href="./register.html"
+              class="font-medium text-indigo-600 hover:text-indigo-500"
+            >
+              Register here
+            </a>
+          </p>
+        </div>
+      </div>
     </div>
 
     <script>
-        document.getElementById('login-form').addEventListener('submit', function(event) {
-            // Prevent the default form submission
-            event.preventDefault();
+      // Simple frontend auth: check stored users in localStorage
+      document
+        .getElementById("login-form")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
 
-            // Here you would typically send the data to a server to verify credentials.
-            // For this example, we'll just simulate a successful login and redirect.
+          const email = document.getElementById("email-address").value.trim();
+          const password = document.getElementById("password").value;
 
-            // Redirect to the user dashboard
-            window.location.href = './dashboard.html';
+          const usersJson = localStorage.getItem("cier_users") || "[]";
+          let users;
+          try {
+            users = JSON.parse(usersJson);
+          } catch {
+            users = [];
+          }
+
+          const matched = users.find(
+            (u) =>
+              u.email.toLowerCase() === email.toLowerCase() &&
+              u.password === password
+          );
+          if (!matched) {
+            alert(
+              "Invalid email or password. If you do not have an account, please register."
+            );
+            return;
+          }
+
+          // Create a simple token and store current user
+          const token = btoa(`${email}:${Date.now()}`);
+          localStorage.setItem("token", token);
+          localStorage.setItem("currentUser", JSON.stringify({ email }));
+
+          // Redirect to dashboard
+          window.location.href = "./dashboard.html";
         });
     </script>
-</body>
+  </body>
 </html>
