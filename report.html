@@ -4,62 +4,141 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Report Incident — CIER</title>
+
     <style>
       :root {
         --bg: #071129;
         --card: #0b1220;
         --muted: #9aa4b2;
         --accent: #6366f1;
+        --success: #10b981;
+        --danger: #ef4444;
+        --glass: rgba(255, 255, 255, 0.03);
+      }
+      * {
+        box-sizing: border-box;
       }
       body {
         margin: 0;
-        font-family: Inter, system-ui, Segoe UI, Roboto, Arial;
-        background: linear-gradient(180deg, #071129, #071b2b);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+          Roboto, "Helvetica Neue", Arial;
+        background: linear-gradient(180deg, #071129 0%, #071b2b 100%);
         color: #e6eef8;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
       }
-      .wrap {
-        max-width: 880px;
-        margin: 36px auto;
+
+      .container {
+        max-width: 1100px;
+        margin: 28px auto;
         padding: 20px;
       }
+
+      header.app-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .logo {
+        width: 46px;
+        height: 46px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: #fff;
+        background: linear-gradient(135deg, var(--accent), #48b5ff);
+      }
+      .title {
+        line-height: 1;
+      }
+      .title h1 {
+        margin: 0;
+        font-size: 18px;
+      }
+      .title p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
       .card {
         background: linear-gradient(
           180deg,
           rgba(255, 255, 255, 0.02),
           rgba(255, 255, 255, 0.01)
         );
-        padding: 22px;
-        border-radius: 12px;
         border: 1px solid rgba(255, 255, 255, 0.03);
+        padding: 18px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(2, 6, 23, 0.6);
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 18px;
+        align-items: start;
+      }
+      @media (max-width: 980px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
       }
       label {
-        display: block;
         font-size: 13px;
         color: var(--muted);
         margin-bottom: 6px;
+        display: block;
       }
-      input,
+      input[type="text"],
+      input[type="email"],
       textarea,
       select {
         width: 100%;
         padding: 10px 12px;
-        border-radius: 8px;
+        border-radius: 10px;
         background: transparent;
-        border: 1px solid rgba(255, 255, 255, 0.06);
         color: #e6eef8;
+        border: 1px solid rgba(255, 255, 255, 0.06);
         outline: none;
-        margin-bottom: 12px;
       }
       textarea {
-        min-height: 140px;
+        min-height: 120px;
         resize: vertical;
       }
+
       .row {
         display: flex;
         gap: 12px;
       }
       .col {
         flex: 1;
+      }
+      .small {
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 6px;
       }
       .btn {
         padding: 10px 14px;
@@ -74,99 +153,287 @@
         color: #fff;
         border: none;
       }
-      .actions {
+
+      /* preview */
+      .preview {
         display: flex;
+        flex-direction: column;
         gap: 12px;
-        justify-content: flex-end;
-        margin-top: 8px;
       }
-      .back {
-        margin-bottom: 12px;
-        display: inline-block;
+      .preview .meta {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .badge {
+        padding: 6px 8px;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 13px;
+      }
+      .severity-low {
+        background: rgba(16, 185, 129, 0.08);
+        color: var(--success);
+      }
+      .severity-medium {
+        background: rgba(255, 193, 7, 0.08);
+        color: #f59e0b;
+      }
+      .severity-high {
+        background: rgba(239, 68, 68, 0.08);
+        color: var(--danger);
+      }
+      .severity-critical {
+        background: rgba(240, 68, 140, 0.08);
+        color: #db2777;
+      }
+
+      .stat-grid {
+        display: flex;
+        gap: 10px;
+      }
+      .stat {
+        flex: 1;
+        padding: 10px;
+        background: var(--glass);
+        border-radius: 8px;
+        text-align: center;
+      }
+      .stat h3 {
+        margin: 0;
+        font-size: 18px;
+      }
+      .stat p {
+        margin: 4px 0 0 0;
         color: var(--muted);
-        text-decoration: none;
+        font-size: 12px;
       }
-      @media (max-width: 720px) {
-        .row {
-          flex-direction: column;
+
+      .helper {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+
+      footer.note {
+        margin-top: 14px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      /* tiny responsive tweaks */
+      @media (max-width: 640px) {
+        .brand h1 {
+          font-size: 16px;
+        }
+        .title p {
+          display: none;
+        }
+        .actions {
+          flex-direction: column-reverse;
         }
       }
     </style>
+
+    <!-- lightweight chart (optional): Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
-    <div class="wrap">
-      <a class="back" href="./dashboard.html">&larr; Back to Dashboard</a>
-      <div class="card">
-        <h1 style="margin: 0 0 6px 0">Report an Incident</h1>
-        <div style="color: var(--muted); margin-bottom: 14px">
-          Fill in details; the incident will appear on the dashboard.
+    <div class="container">
+      <header class="app-header">
+        <div class="brand">
+          <div class="logo">CI</div>
+          <div class="title">
+            <h1>CIER — Report Incident</h1>
+            <p>
+              Create a new incident report — changes save locally and appear on
+              the dashboard.
+            </p>
+          </div>
         </div>
+        <div style="display: flex; gap: 8px; align-items: center">
+          <a href="./dashboard.html" class="btn" style="text-decoration: none"
+            >← Back</a
+          >
+          <button id="logout" class="btn">Logout</button>
+        </div>
+      </header>
 
-        <form id="report-incident-form">
-          <label for="title">Title</label>
-          <input
-            id="title"
-            name="title"
-            required
-            type="text"
-            placeholder="Brief title"
-          />
-
-          <div class="row">
-            <div class="col">
-              <label for="reporter">Your email</label>
+      <main class="layout">
+        <section class="card">
+          <form id="report-form" novalidate>
+            <div>
+              <label for="title">Title</label>
               <input
-                id="reporter"
-                name="reporter"
-                type="email"
-                placeholder="you@example.com"
+                id="title"
+                name="title"
+                type="text"
+                placeholder="Brief descriptive title"
+                required
               />
             </div>
-            <div style="width: 170px">
-              <label for="status">Status</label>
-              <select id="status" name="status">
-                <option value="open">Open</option>
-                <option value="investigating">Investigating</option>
-                <option value="awaiting_approval">Awaiting approval</option>
-                <option value="closed">Closed</option>
-              </select>
+
+            <div class="row">
+              <div class="col">
+                <label for="reporter">Reporter email</label>
+                <input
+                  id="reporter"
+                  name="reporter"
+                  type="email"
+                  placeholder="you@example.com"
+                />
+              </div>
+              <div style="width: 160px">
+                <label for="status">Status</label>
+                <select id="status" name="status">
+                  <option value="open">Open</option>
+                  <option value="investigating">Investigating</option>
+                  <option value="awaiting_approval">Awaiting approval</option>
+                  <option value="closed">Closed</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col">
+                <label for="location">Location</label>
+                <div style="display: flex; gap: 8px; align-items: center">
+                  <input
+                    id="location"
+                    name="location"
+                    type="text"
+                    placeholder="Block A, Room 12"
+                  />
+                  <button
+                    type="button"
+                    id="use-location"
+                    class="btn"
+                    title="Use my current location"
+                  >
+                    📍
+                  </button>
+                </div>
+                <div
+                  id="loc-status"
+                  class="small"
+                  style="margin-top: 6px; color: var(--muted)"
+                ></div>
+              </div>
+              <div style="width: 160px">
+                <label for="severity">Severity</label>
+                <select id="severity" name="severity">
+                  <option value="low">Low</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="high">High</option>
+                  <option value="critical">Critical</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label for="description"
+                >Description <span class="small">(min 10 chars)</span></label
+              >
+              <textarea
+                id="description"
+                name="description"
+                placeholder="Describe what happened..."
+                minlength="10"
+              ></textarea>
+              <div class="helper small" id="desc-count">0 characters</div>
+            </div>
+
+            <div class="actions">
+              <button type="button" id="cancel" class="btn">Cancel</button>
+              <button type="submit" class="btn primary">Submit Incident</button>
+            </div>
+          </form>
+
+          <footer class="note small">
+            Reports are stored locally for this demo. Integrate with a backend
+            to persist across devices.
+          </footer>
+        </section>
+
+        <aside class="card preview" aria-live="polite">
+          <div>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+              "
+            >
+              <div>
+                <h3 style="margin: 0 0 6px 0">Preview</h3>
+                <div class="small">
+                  See how your incident will appear on the dashboard
+                </div>
+              </div>
+              <div style="width: 110px">
+                <div class="small">Severity chart</div>
+                <canvas id="severityChart" width="120" height="80"></canvas>
+              </div>
+            </div>
+
+            <div
+              style="
+                margin-top: 12px;
+                border-radius: 8px;
+                padding: 12px;
+                background: var(--glass);
+              "
+            >
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                "
+              >
+                <strong id="pv-title">Untitled Incident</strong>
+                <span id="pv-status" class="badge severity-low">Open</span>
+              </div>
+
+              <div class="small" style="margin-top: 8px">
+                <div id="pv-location">Location: —</div>
+                <div id="pv-reporter">Reporter: —</div>
+                <div id="pv-time">Time: —</div>
+              </div>
+
+              <p id="pv-desc" style="margin-top: 10px; color: var(--muted)">
+                No description yet.
+              </p>
             </div>
           </div>
 
-          <label for="location">Location</label>
-          <input
-            id="location"
-            name="location"
-            type="text"
-            placeholder="e.g. Block A, Room 12"
-          />
-
-          <label for="severity">Severity</label>
-          <select id="severity" name="severity">
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-            <option value="critical">Critical</option>
-          </select>
-
-          <label for="description">Description</label>
-          <textarea
-            id="description"
-            name="description"
-            placeholder="Describe what happened"
-          ></textarea>
-
-          <div class="actions">
-            <button type="button" id="cancel" class="btn">Cancel</button>
-            <button type="submit" class="btn primary">Submit Incident</button>
+          <div style="margin-top: 14px">
+            <div class="small">Quick stats</div>
+            <div class="stat-grid" style="margin-top: 8px">
+              <div class="stat">
+                <h3 id="stat-total">0</h3>
+                <p>Total incidents</p>
+              </div>
+              <div class="stat">
+                <h3 id="stat-open">0</h3>
+                <p>Open</p>
+              </div>
+              <div class="stat">
+                <h3 id="stat-closed">0</h3>
+                <p>Closed</p>
+              </div>
+            </div>
           </div>
-        </form>
-      </div>
+        </aside>
+      </main>
     </div>
 
     <script>
+      // small helpers & data keys
       const INCIDENTS_KEY = "cier_incidents";
       const USER_KEY = "currentUser";
+      const NOMINATIM_ENDPOINT = "https://nominatim.openstreetmap.org/reverse";
 
       function loadIncidents() {
         try {
@@ -179,6 +446,94 @@
         localStorage.setItem(INCIDENTS_KEY, JSON.stringify(list));
       }
 
+      // Location helpers: get device location and optional reverse geocode
+      async function reverseGeocode(lat, lon) {
+        try {
+          const url = `${NOMINATIM_ENDPOINT}?format=jsonv2&lat=${encodeURIComponent(
+            lat
+          )}&lon=${encodeURIComponent(lon)}`;
+          const res = await fetch(url, {
+            headers: { Accept: "application/json" },
+          });
+          if (!res.ok) return null;
+          const data = await res.json();
+          return data.display_name || null;
+        } catch (err) {
+          return null;
+        }
+      }
+
+      function setLocStatus(msg, isError = false) {
+        const el = document.getElementById("loc-status");
+        if (!el) return;
+        el.textContent = msg;
+        el.style.color = isError ? "var(--danger)" : "var(--muted)";
+      }
+
+      document.getElementById("use-location").addEventListener("click", () => {
+        const btn = document.getElementById("use-location");
+        if (!navigator.geolocation) {
+          setLocStatus("Geolocation not supported by this browser", true);
+          return;
+        }
+        setLocStatus("Requesting location...");
+        btn.disabled = true;
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            setLocStatus(
+              `Got coords: ${lat.toFixed(5)}, ${lon.toFixed(
+                5
+              )} — looking up address...`
+            );
+            // try reverse geocoding
+            const human = await reverseGeocode(lat, lon);
+            const locInput = document.getElementById("location");
+            if (human) {
+              locInput.value = human;
+              setLocStatus("Location filled from device (approximate).");
+            } else {
+              locInput.value = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+              setLocStatus("Coordinates inserted (no address found).");
+            }
+            // update preview
+            updatePreview();
+            btn.disabled = false;
+          },
+          (err) => {
+            btn.disabled = false;
+            if (err.code === 1)
+              setLocStatus(
+                "Permission denied. Allow location to use this feature.",
+                true
+              );
+            else if (err.code === 2)
+              setLocStatus("Position unavailable.", true);
+            else if (err.code === 3)
+              setLocStatus("Location request timed out.", true);
+            else setLocStatus("Could not get location: " + err.message, true);
+          },
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+        );
+      });
+
+      // DOM
+      const form = document.getElementById("report-form");
+      const cancelBtn = document.getElementById("cancel");
+      const desc = document.getElementById("description");
+      const descCount = document.getElementById("desc-count");
+      const pvTitle = document.getElementById("pv-title");
+      const pvStatus = document.getElementById("pv-status");
+      const pvLocation = document.getElementById("pv-location");
+      const pvReporter = document.getElementById("pv-reporter");
+      const pvTime = document.getElementById("pv-time");
+      const pvDesc = document.getElementById("pv-desc");
+
+      const statTotal = document.getElementById("stat-total");
+      const statOpen = document.getElementById("stat-open");
+      const statClosed = document.getElementById("stat-closed");
+
       // prefill reporter if signed in
       const currentUser = localStorage.getItem(USER_KEY)
         ? JSON.parse(localStorage.getItem(USER_KEY))
@@ -188,48 +543,158 @@
         if (rep && !rep.value) rep.value = currentUser.email;
       }
 
-      document.getElementById("cancel").addEventListener("click", () => {
+      // severity chart
+      let chart;
+      function setupChart() {
+        const ctx = document.getElementById("severityChart").getContext("2d");
+        const data = countSeverity();
+        chart = new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            labels: ["Low", "Medium", "High", "Critical"],
+            datasets: [
+              {
+                data: [data.low, data.medium, data.high, data.critical],
+                backgroundColor: ["#10b981", "#f59e0b", "#ef4444", "#db2777"],
+                borderWidth: 0,
+              },
+            ],
+          },
+          options: {
+            maintainAspectRatio: true,
+            plugins: { legend: { display: false } },
+            cutout: "60%",
+          },
+        });
+      }
+
+      function updateChart() {
+        if (!chart) return;
+        const d = countSeverity();
+        chart.data.datasets[0].data = [d.low, d.medium, d.high, d.critical];
+        chart.update();
+      }
+
+      function countSeverity() {
+        const list = loadIncidents();
+        const counts = { low: 0, medium: 0, high: 0, critical: 0 };
+        list.forEach((it) => {
+          const s = (it.severity || "low").toLowerCase();
+          if (counts[s] !== undefined) counts[s]++;
+        });
+        return counts;
+      }
+
+      // preview updates
+      function updatePreview() {
+        const title =
+          document.getElementById("title").value.trim() || "Untitled Incident";
+        const status = document.getElementById("status").value || "open";
+        const location =
+          document.getElementById("location").value.trim() || "—";
+        const reporter =
+          document.getElementById("reporter").value.trim() ||
+          currentUser?.email ||
+          "—";
+        const description = desc.value.trim() || "No description yet.";
+        const severity = document.getElementById("severity").value || "low";
+
+        pvTitle.textContent = title;
+        pvStatus.textContent = status.replace("_", " ");
+        pvStatus.className = "badge " + severityClass(severity);
+        pvLocation.textContent = "Location: " + location;
+        pvReporter.textContent = "Reporter: " + reporter;
+        pvTime.textContent = "Time: " + new Date().toLocaleString();
+        pvDesc.textContent = description;
+
+        descCount.textContent = desc.value.length + " characters";
+      }
+
+      function severityClass(s) {
+        s = (s || "low").toLowerCase();
+        if (s === "low") return "severity-low";
+        if (s === "medium") return "severity-medium";
+        if (s === "high") return "severity-high";
+        if (s === "critical") return "severity-critical";
+        return "severity-low";
+      }
+
+      // live listeners
+      ["title", "status", "location", "reporter", "severity"].forEach((id) => {
+        document.getElementById(id).addEventListener("input", updatePreview);
+        document.getElementById(id).addEventListener("change", updatePreview);
+      });
+      desc.addEventListener("input", updatePreview);
+
+      // form submit
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const title = document.getElementById("title").value.trim();
+        if (!title) {
+          alert("Please enter a title");
+          return;
+        }
+        const description = desc.value.trim();
+        if (description.length < 10) {
+          if (!confirm("Description looks short. Submit anyway?")) return;
+        }
+
+        const item = {
+          id: "i_" + Date.now(),
+          title,
+          description,
+          location: document.getElementById("location").value.trim(),
+          reporter:
+            document.getElementById("reporter").value.trim() ||
+            currentUser?.email ||
+            "anonymous",
+          status: document.getElementById("status").value || "open",
+          severity: document.getElementById("severity").value || "low",
+          createdAt: new Date().toISOString(),
+          resolvedAt: null,
+        };
+
+        const list = loadIncidents();
+        list.unshift(item);
+        saveIncidents(list);
+
+        // update stats + chart, then redirect
+        refreshStats();
+        updateChart();
+
+        alert("Incident submitted.");
         window.location.href = "./dashboard.html";
       });
 
-      document
-        .getElementById("report-incident-form")
-        .addEventListener("submit", (e) => {
-          e.preventDefault();
-          const title = document.getElementById("title").value.trim();
-          const description = document
-            .getElementById("description")
-            .value.trim();
-          const location = document.getElementById("location").value.trim();
-          const reporter =
-            document.getElementById("reporter").value.trim() ||
-            currentUser?.email ||
-            "anonymous";
-          const status = document.getElementById("status").value || "open";
-          const severity = document.getElementById("severity").value || "low";
+      cancelBtn.addEventListener("click", () => {
+        window.location.href = "./dashboard.html";
+      });
 
-          if (!title) {
-            alert("Please enter a title");
-            return;
-          }
+      // stats
+      function refreshStats() {
+        const list = loadIncidents();
+        statTotal.textContent = list.length;
+        statOpen.textContent = list.filter((i) => i.status !== "closed").length;
+        statClosed.textContent = list.filter(
+          (i) => i.status === "closed"
+        ).length;
+      }
 
-          const list = loadIncidents();
-          list.unshift({
-            id: "i_" + Date.now(),
-            title,
-            description,
-            location,
-            reporter,
-            status,
-            severity,
-            createdAt: new Date().toISOString(),
-            resolvedAt: null,
-          });
-          saveIncidents(list);
+      // logout btn
+      document.getElementById("logout").addEventListener("click", () => {
+        localStorage.removeItem("token");
+        // optionally clear current user:
+        // localStorage.removeItem(USER_KEY);
+        window.location.href = "./login.html";
+      });
 
-          alert("Incident submitted.");
-          window.location.href = "./dashboard.html";
-        });
+      // init
+      (function init() {
+        updatePreview();
+        refreshStats();
+        setupChart();
+        updateChart();
+      })();
     </script>
   </body>
 </html>
