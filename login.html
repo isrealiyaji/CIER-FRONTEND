@@ -102,43 +102,54 @@
     </div>
 
     <script>
-      // Simple frontend auth: check stored users in localStorage
-      document
-        .getElementById("login-form")
-        .addEventListener("submit", function (event) {
-          event.preventDefault();
+      document.getElementById('login-form').addEventListener('submit', async function (event) {
+    event.preventDefault();
 
-          const email = document.getElementById("email-address").value.trim();
-          const password = document.getElementById("password").value;
+    const email = document.getElementById('email-address').value.trim();
+    const password = document.getElementById('password').value;
 
-          const usersJson = localStorage.getItem("cier_users") || "[]";
-          let users;
-          try {
-            users = JSON.parse(usersJson);
-          } catch {
-            users = [];
-          }
+    // Replace with your real API endpoint
+    const apiUrl = 'http://localhost:3800/users/login';
 
-          const matched = users.find(
-            (u) =>
-              u.email.toLowerCase() === email.toLowerCase() &&
-              u.password === password
-          );
-          if (!matched) {
-            alert(
-              "Invalid email or password. If you do not have an account, please register."
-            );
-            return;
-          }
-
-          // Create a simple token and store current user
-          const token = btoa(`${email}:${Date.now()}`);
-          localStorage.setItem("token", token);
-          localStorage.setItem("currentUser", JSON.stringify({ email }));
-
-          // Redirect to dashboard
-          window.location.href = "./dashboard.html";
+    try {
+        const res = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+                // include other headers your API requires (e.g. Authorization) if needed
+            },
+            body: JSON.stringify({ email, password })
         });
+
+        // Try to parse JSON if possible, otherwise get raw text
+        let body;
+        const text = await res.text();
+        try {
+            body = JSON.parse(text);
+        } catch {
+            body = text;
+        }
+
+        if (!res.ok) {
+            // Show detailed error so you can debug the 500
+            console.error('Login failed', res.status, body);
+            alert('Login failed: ' + (body && body.error ? body.error : (typeof body === "string" ? body : JSON.stringify(body))));
+            return;
+        }
+
+        // Success: inspect returned token/data
+        console.log('Login success', body);
+        const token = body.token || btoa(`${email}:${Date.now()}`);
+        localStorage.setItem('token', token);
+        localStorage.setItem('currentUser', JSON.stringify({ email }));
+        window.location.href = './dashboard.html';
+
+    } catch (err) {
+        // Network or unexpected error
+        console.error('Network or unexpected error during login', err);
+        alert('Network error: ' + (err.message || err));
+    }
+});
     </script>
   </body>
 </html>
