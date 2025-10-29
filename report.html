@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Report Incident — CIER</title>
+    <style>
+      :root {
+        --bg: #071129;
+        --card: #0b1220;
+        --muted: #9aa4b2;
+        --accent: #6366f1;
+      }
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, Segoe UI, Roboto, Arial;
+        background: linear-gradient(180deg, #071129, #071b2b);
+        color: #e6eef8;
+      }
+      .wrap {
+        max-width: 880px;
+        margin: 36px auto;
+        padding: 20px;
+      }
+      .card {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0.01)
+        );
+        padding: 22px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.03);
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 8px;
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        color: #e6eef8;
+        outline: none;
+        margin-bottom: 12px;
+      }
+      textarea {
+        min-height: 140px;
+        resize: vertical;
+      }
+      .row {
+        display: flex;
+        gap: 12px;
+      }
+      .col {
+        flex: 1;
+      }
+      .btn {
+        padding: 10px 14px;
+        border-radius: 10px;
+        cursor: pointer;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        background: var(--card);
+        color: var(--muted);
+      }
+      .btn.primary {
+        background: linear-gradient(90deg, var(--accent), #48b5ff);
+        color: #fff;
+        border: none;
+      }
+      .actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 8px;
+      }
+      .back {
+        margin-bottom: 12px;
+        display: inline-block;
+        color: var(--muted);
+        text-decoration: none;
+      }
+      @media (max-width: 720px) {
+        .row {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <a class="back" href="./dashboard.html">&larr; Back to Dashboard</a>
+      <div class="card">
+        <h1 style="margin: 0 0 6px 0">Report an Incident</h1>
+        <div style="color: var(--muted); margin-bottom: 14px">
+          Fill in details; the incident will appear on the dashboard.
+        </div>
+
+        <form id="report-incident-form">
+          <label for="title">Title</label>
+          <input
+            id="title"
+            name="title"
+            required
+            type="text"
+            placeholder="Brief title"
+          />
+
+          <div class="row">
+            <div class="col">
+              <label for="reporter">Your email</label>
+              <input
+                id="reporter"
+                name="reporter"
+                type="email"
+                placeholder="you@example.com"
+              />
+            </div>
+            <div style="width: 170px">
+              <label for="status">Status</label>
+              <select id="status" name="status">
+                <option value="open">Open</option>
+                <option value="investigating">Investigating</option>
+                <option value="awaiting_approval">Awaiting approval</option>
+                <option value="closed">Closed</option>
+              </select>
+            </div>
+          </div>
+
+          <label for="location">Location</label>
+          <input
+            id="location"
+            name="location"
+            type="text"
+            placeholder="e.g. Block A, Room 12"
+          />
+
+          <label for="severity">Severity</label>
+          <select id="severity" name="severity">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+
+          <label for="description">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            placeholder="Describe what happened"
+          ></textarea>
+
+          <div class="actions">
+            <button type="button" id="cancel" class="btn">Cancel</button>
+            <button type="submit" class="btn primary">Submit Incident</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const INCIDENTS_KEY = "cier_incidents";
+      const USER_KEY = "currentUser";
+
+      function loadIncidents() {
+        try {
+          return JSON.parse(localStorage.getItem(INCIDENTS_KEY) || "[]");
+        } catch (e) {
+          return [];
+        }
+      }
+      function saveIncidents(list) {
+        localStorage.setItem(INCIDENTS_KEY, JSON.stringify(list));
+      }
+
+      // prefill reporter if signed in
+      const currentUser = localStorage.getItem(USER_KEY)
+        ? JSON.parse(localStorage.getItem(USER_KEY))
+        : null;
+      if (currentUser?.email) {
+        const rep = document.getElementById("reporter");
+        if (rep && !rep.value) rep.value = currentUser.email;
+      }
+
+      document.getElementById("cancel").addEventListener("click", () => {
+        window.location.href = "./dashboard.html";
+      });
+
+      document
+        .getElementById("report-incident-form")
+        .addEventListener("submit", (e) => {
+          e.preventDefault();
+          const title = document.getElementById("title").value.trim();
+          const description = document
+            .getElementById("description")
+            .value.trim();
+          const location = document.getElementById("location").value.trim();
+          const reporter =
+            document.getElementById("reporter").value.trim() ||
+            currentUser?.email ||
+            "anonymous";
+          const status = document.getElementById("status").value || "open";
+          const severity = document.getElementById("severity").value || "low";
+
+          if (!title) {
+            alert("Please enter a title");
+            return;
+          }
+
+          const list = loadIncidents();
+          list.unshift({
+            id: "i_" + Date.now(),
+            title,
+            description,
+            location,
+            reporter,
+            status,
+            severity,
+            createdAt: new Date().toISOString(),
+            resolvedAt: null,
+          });
+          saveIncidents(list);
+
+          alert("Incident submitted.");
+          window.location.href = "./dashboard.html";
+        });
+    </script>
+  </body>
+</html>
