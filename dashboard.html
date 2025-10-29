@@ -1,338 +1,546 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>User Dashboard - CIER</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>CIER Dashboard</title>
+    <style>
+      :root {
+        --bg: #0f172a;
+        --card: #0b1220;
+        --muted: #9aa4b2;
+        --accent: #6366f1;
+        --success: #10b981;
+        --danger: #ef4444;
+        --glass: rgba(255, 255, 255, 0.03);
+      }
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI,
+          Roboto, "Helvetica Neue", Arial;
+        background: linear-gradient(180deg, #071129 0%, #071b2b 100%);
+        color: #e6eef8;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 28px auto;
+        padding: 20px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .logo {
+        width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, var(--accent), #48b5ff);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: #fff;
+      }
+      .brand h1 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: 0.2px;
+      }
+      .controls {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .btn {
+        background: var(--card);
+        color: var(--muted);
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        cursor: pointer;
+      }
+      .btn.primary {
+        background: linear-gradient(90deg, var(--accent), #48b5ff);
+        color: white;
+        border: none;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 20px;
+        align-items: start;
+      }
+      aside {
+        background: var(--card);
+        padding: 16px;
+        border-radius: 12px;
+        min-height: 300px;
+        box-shadow: 0 6px 18px rgba(2, 6, 23, 0.6);
+      }
+      main {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0.01)
+        );
+        padding: 18px;
+        border-radius: 12px;
+        min-height: 400px;
+      }
+      .stats {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .card {
+        flex: 1;
+        background: var(--glass);
+        padding: 14px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.03);
+      }
+      .card h3 {
+        margin: 0 0 8px 0;
+        font-weight: 600;
+        color: #fff;
+      }
+      .card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .form-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      input[type="text"],
+      input[type="email"],
+      textarea,
+      select {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 8px;
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        color: #e6eef8;
+        outline: none;
+      }
+      textarea {
+        min-height: 90px;
+        resize: vertical;
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .search {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .search input {
+        width: 260px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        color: #dbeeff;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 10px 12px;
+        font-size: 14px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      }
+      th {
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+      }
+      tbody tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .status {
+        padding: 6px 8px;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 13px;
+        display: inline-block;
+      }
+      .open {
+        background: rgba(16, 185, 129, 0.12);
+        color: var(--success);
+      }
+      .closed {
+        background: rgba(239, 68, 68, 0.12);
+        color: var(--danger);
+      }
+      .small {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      @media (max-width: 880px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        .search input {
+          width: 100%;
+        }
+      }
+    </style>
   </head>
-  <body class="bg-gray-100">
-    <!-- Header -->
-    <header class="bg-white shadow-md">
-      <nav class="container flex items-center justify-between p-4 mx-auto">
-        <h1 class="text-xl font-bold text-indigo-600">CIER Dashboard</h1>
-        <div>
-          <span class="mr-4 text-gray-700">Welcome, User!!!</span>
-          <a
-            href="/login.html"
-            id="logout-button"
-            class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600"
-            >Logout</a
-          >
-        </div>
-      </nav>
-    </header>
-
-    <!-- Main Content-->
-    <main class="container p-4 mx-auto mt-6">
-      <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        
-        <div class="p-6 bg-white rounded-lg shadow-md lg:col-span-1">
-          <h2 class="mb-4 text-2xl font-bold text-gray-800">
-            Report a New Incident
-          </h2>
-          <form id="report-incident-form" class="space-y-4">
-            <div>
-              <label
-                for="incident-type"
-                class="block text-sm font-medium text-gray-700"
-                >Incident Type</label
-              >
-              <select
-                id="incident-type"
-                name="incident-type"
-                required
-                class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option>Theft</option>
-                <option>Vandalism</option>
-                <option>Public Disturbance</option>
-                <option>Medical Emergency</option>
-                <option>Other</option>
-              </select>
-            </div>
-            <div>
-              <label
-                for="description"
-                class="block text-sm font-medium text-gray-700"
-                >Description</label
-              >
-              <textarea
-                id="description"
-                name="description"
-                rows="4"
-                required
-                class="block w-full p-2 mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Enter incident details..."
-              ></textarea>
-            </div>
-            <div>
-              <label
-                for="location"
-                class="block text-sm font-medium text-gray-700"
-                >Location (Optional)</label
-              >
-              <div class="flex items-center mt-1 space-x-2">
-                <input
-                  type="text"
-                  id="location"
-                  name="location"
-                  class="block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="e.g., Corner of Main St & 1st Ave"
-                />
-                <button
-                  type="button"
-                  id="get-location-btn"
-                  class="flex-shrink-0 px-3 py-2 text-sm font-medium text-white bg-indigo-500 rounded-md hover:bg-indigo-600"
-                  title="Get My Current Location"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="w-5 h-5"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <div>
-              <label for="media" class="block text-sm font-medium text-gray-700"
-                >Upload Media (Optional)</label
-              >
-              <input
-                type="file"
-                id="media"
-                name="media"
-                class="block w-full mt-1 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-              />
-            </div>
-            <button
-              type="submit"
-              class="w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Submit Incident Report
-            </button> 
-          </form>
-        </div> 
-
-        <!-- My Incidents List -->
-        <div class="p-6 bg-white rounded-lg shadow-md lg:col-span-2">
-          <h2 class="mb-4 text-2xl font-bold text-gray-800">
-            My Reported Incidents
-          </h2>
-          <div class="overflow-x-auto">
-            <table class="min-w-full bg-white">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th
-                    class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
-                  >
-                    ID
-                  </th>
-                  <th
-                    class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
-                  >
-                    Description
-                  </th>
-                  <th
-                    class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
-                  >
-                    Status
-                  </th>
-                  <th
-                    class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
-                  >
-                    Date
-                  </th>
-                </tr>
-              </thead>
-              <tbody id="incidents-table-body" class="divide-y divide-gray-200">
-                <!-- Incident rows will be dynamically inserted here -->
-              </tbody>
-            </table>
+  <body>
+    <div class="container">
+      <header>
+        <div class="brand">
+          <div class="logo">CI</div>
+          <div>
+            <h1>CIER — Incidents Dashboard</h1>
+            <div class="small">Manage and track reported incidents</div>
           </div>
         </div>
+        <div class="controls">
+          <div id="current-user" class="small">Signed in</div>
+          <button id="logout-button" class="btn">Logout</button>
+        </div>
+      </header>
+
+      <div class="layout">
+        <aside>
+          <h3 style="margin-top: 0">Quick Actions</h3>
+          <div style="margin: 12px 0">
+            <button
+              id="open-report-btn"
+              class="btn primary"
+              style="width: 100%"
+            >
+              Report Incident
+            </button>
+          </div>
+          <div style="margin-top: 14px">
+            <div class="small">Filters</div>
+            <select id="filter-status" style="margin-top: 8px">
+              <option value="">All statuses</option>
+              <option value="open">Open</option>
+              <option value="closed">Closed</option>
+            </select>
+            <div style="margin-top: 12px">
+              <label class="small">Sort by</label>
+              <select id="sort-by" style="margin-top: 6px">
+                <option value="newest">Newest first</option>
+                <option value="oldest">Oldest first</option>
+              </select>
+            </div>
+          </div>
+        </aside>
+
+        <main>
+          <div class="stats">
+            <div class="card">
+              <h3 id="total-incidents">0</h3>
+              <p>Total incidents</p>
+            </div>
+            <div class="card">
+              <h3 id="open-count">0</h3>
+              <p>Open incidents</p>
+            </div>
+            <div class="card">
+              <h3 id="closed-count">0</h3>
+              <p>Closed incidents</p>
+            </div>
+          </div>
+
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              gap: 12px;
+              flex-wrap: wrap;
+            "
+          >
+            <div class="search">
+              <input
+                id="search-input"
+                placeholder="Search by title, description or reporter..."
+              />
+              <button id="clear-search" class="btn">Clear</button>
+            </div>
+            <div class="small">
+              Showing <span id="shown-count">0</span> of
+              <span id="total-count">0</span>
+            </div>
+          </div>
+
+          <section style="margin-top: 14px">
+            <table aria-label="Incidents table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Location</th>
+                  <th>Reported by</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="incidents-table-body">
+                <!-- rows populated by JS -->
+              </tbody>
+            </table>
+          </section>
+
+          <!-- Hidden / toggled report form -->
+          <div id="report-panel" style="margin-top: 16px; display: none">
+            <form id="report-incident-form">
+              <div class="form-row">
+                <div style="flex: 1">
+                  <label for="incident-title">Title</label>
+                  <input
+                    id="incident-title"
+                    required
+                    type="text"
+                    placeholder="Brief title of incident"
+                  />
+                </div>
+                <div style="width: 200px">
+                  <label for="incident-status">Status</label>
+                  <select id="incident-status">
+                    <option value="open">Open</option>
+                    <option value="closed">Closed</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div style="flex: 1">
+                  <label for="incident-location">Location</label>
+                  <input
+                    id="incident-location"
+                    type="text"
+                    placeholder="e.g. Block A, Room 12"
+                  />
+                </div>
+                <div style="width: 220px">
+                  <label for="incident-reporter">Your email</label>
+                  <input
+                    id="incident-reporter"
+                    type="email"
+                    placeholder="you@example.com"
+                  />
+                </div>
+              </div>
+              <div>
+                <label for="incident-desc">Description</label>
+                <textarea
+                  id="incident-desc"
+                  placeholder="Describe what happened"
+                ></textarea>
+              </div>
+              <div class="actions">
+                <button type="submit" class="btn primary">
+                  Submit Incident
+                </button>
+                <button type="button" id="cancel-report" class="btn">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </main>
       </div>
-    </main>
+    </div>
 
     <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const incidentForm = document.getElementById("report-incident-form");
-        const incidentsTbody = document.getElementById("incidents-table-body");
-        const logoutButton = document.getElementById("logout-button");
-        const API_URL = "http://localhost:3800/incidents"; // Adjust if your backend URL is different
+      // Keep compatibility: respect existing localStorage keys if any
+      const INCIDENTS_KEY = "cier_incidents";
+      const USER_KEY = "currentUser";
 
-        const token = localStorage.getItem("token");
-        if (!token) {
-          window.location.href = "/login.html";
+      // UI elements
+      const tbody = document.getElementById("incidents-table-body");
+      const totalIncEl = document.getElementById("total-incidents");
+      const openCountEl = document.getElementById("open-count");
+      const closedCountEl = document.getElementById("closed-count");
+      const shownCountEl = document.getElementById("shown-count");
+      const totalCountEl = document.getElementById("total-count");
+      const searchInput = document.getElementById("search-input");
+      const filterStatus = document.getElementById("filter-status");
+      const sortBy = document.getElementById("sort-by");
+      const clearSearch = document.getElementById("clear-search");
+      const reportPanel = document.getElementById("report-panel");
+      const openReportBtn = document.getElementById("open-report-btn");
+      const cancelReportBtn = document.getElementById("cancel-report");
+      const reportForm = document.getElementById("report-incident-form");
+      const logoutBtn = document.getElementById("logout-button");
+      const currentUserEl = document.getElementById("current-user");
+
+      // initialize current user display
+      const currentUser = localStorage.getItem(USER_KEY)
+        ? JSON.parse(localStorage.getItem(USER_KEY))
+        : null;
+      currentUserEl.textContent = currentUser?.email
+        ? `Signed in as ${currentUser.email}`
+        : "Not signed in";
+
+      function loadIncidents() {
+        try {
+          return JSON.parse(localStorage.getItem(INCIDENTS_KEY) || "[]");
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function saveIncidents(list) {
+        localStorage.setItem(INCIDENTS_KEY, JSON.stringify(list));
+      }
+
+      function renderIncidents() {
+        const all = loadIncidents();
+        const q = (searchInput.value || "").toLowerCase().trim();
+        const statusFilter = filterStatus.value;
+        const sorted = all.slice().sort((a, b) => {
+          const ta = new Date(a.createdAt || a.date || 0).getTime();
+          const tb = new Date(b.createdAt || b.date || 0).getTime();
+          return sortBy.value === "oldest" ? ta - tb : tb - ta;
+        });
+
+        const filtered = sorted.filter((item) => {
+          if (statusFilter && item.status !== statusFilter) return false;
+          if (!q) return true;
+          return (
+            (item.title || "").toLowerCase().includes(q) ||
+            (item.description || "").toLowerCase().includes(q) ||
+            (item.reporter || "").toLowerCase().includes(q) ||
+            (item.location || "").toLowerCase().includes(q)
+          );
+        });
+
+        tbody.innerHTML = "";
+        filtered.forEach((item) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+          <td>${escapeHtml(item.title || "—")}</td>
+          <td class="small">${escapeHtml(item.location || "—")}</td>
+          <td class="small">${escapeHtml(item.reporter || "anonymous")}</td>
+          <td class="small">${new Date(
+            item.createdAt || item.date || Date.now()
+          ).toLocaleString()}</td>
+          <td><span class="status ${
+            item.status === "closed" ? "closed" : "open"
+          }">${item.status || "open"}</span></td>
+        `;
+          tbody.appendChild(tr);
+        });
+
+        totalIncEl.textContent = all.length;
+        openCountEl.textContent = all.filter(
+          (i) => i.status !== "closed"
+        ).length;
+        closedCountEl.textContent = all.filter(
+          (i) => i.status === "closed"
+        ).length;
+        shownCountEl.textContent = filtered.length;
+        totalCountEl.textContent = all.length;
+      }
+
+      // helpers
+      function escapeHtml(str) {
+        return String(str).replace(
+          /[&<>"']/g,
+          (s) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            }[s])
+        );
+      }
+
+      // events
+      searchInput.addEventListener("input", () => renderIncidents());
+      clearSearch.addEventListener("click", () => {
+        searchInput.value = "";
+        renderIncidents();
+      });
+      filterStatus.addEventListener("change", renderIncidents);
+      sortBy.addEventListener("change", renderIncidents);
+
+      openReportBtn.addEventListener("click", () => {
+        reportPanel.style.display =
+          reportPanel.style.display === "none" ? "block" : "block";
+        reportPanel.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      cancelReportBtn.addEventListener("click", () => {
+        reportPanel.style.display = "none";
+      });
+
+      reportForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const title = document.getElementById("incident-title").value.trim();
+        const description = document
+          .getElementById("incident-desc")
+          .value.trim();
+        const location = document
+          .getElementById("incident-location")
+          .value.trim();
+        const reporter =
+          document.getElementById("incident-reporter").value.trim() ||
+          currentUser?.email ||
+          "anonymous";
+        const status =
+          document.getElementById("incident-status").value || "open";
+        if (!title) {
+          alert("Please enter a title");
+          return;
         }
 
-        // Function to get badge color based on status
-        const getStatusBadge = (status) => {
-          switch (status.toLowerCase()) {
-            case "resolved":
-              return "bg-green-100 text-green-800";
-            case "under investigation":
-              return "bg-yellow-100 text-yellow-800";
-            case "reported":
-              return "bg-blue-100 text-blue-800";
-            default:
-              return "bg-gray-100 text-gray-800";
-          }
-        };
-
-        // Function to fetch incidents from the backend
-        const fetchIncidents = async () => {
-          try {
-            const response = await fetch(API_URL, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
-            if (!response.ok) {
-              throw new Error("Failed to fetch incidents.");
-            }
-            const incidents = await response.json();
-
-            // Clear existing rows
-            incidentsTbody.innerHTML = "";
-
-            if (incidents.length === 0) {
-              incidentsTbody.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No incidents reported yet.</td></tr>`;
-              return;
-            }
-
-            // Populate table with fetched incidents
-            incidents.forEach((incident) => {
-              const row = document.createElement("tr");
-              row.innerHTML = `
-                <td class="px-6 py-4 whitespace-nowrap">#${incident.id}</td>
-                <td class="px-6 py-4">${incident.description}</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full ${getStatusBadge(
-                    incident.status
-                  )}">
-                    ${incident.status}
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">${new Date(
-                  incident.created_at
-                ).toLocaleDateString()}</td>
-              `;
-              incidentsTbody.appendChild(row);
-            });
-          } catch (error) {
-            console.error("Error fetching incidents:", error);
-            incidentsTbody.innerHTML = `<tr><td colspan="4" class="px-6 py-4 text-center text-red-500">Error loading incidents.</td></tr>`;
-          }
-        };
-
-        // Function to handle form submission
-        incidentForm.addEventListener("submit", async (e) => {
-          e.preventDefault();
-
-          const formData = new FormData(incidentForm);
-          // The 'type' field from the select needs to be correctly named if the backend expects 'type'
-          formData.set("type", formData.get("incident-type"));
-          formData.delete("incident-type");
-
-          try {
-            const response = await fetch(API_URL, {
-              method: "POST",
-              headers: {
-                // Do NOT set 'Content-Type'. The browser will set it automatically
-                // to 'multipart/form-data' with the correct boundary.
-                Authorization: `Bearer ${token}`,
-              },
-              body: formData, // Send the FormData object directly
-            });
-
-            if (!response.ok) {
-              // Try to get more specific error info from the backend response
-              let errorMessage = `Server responded with status: ${response.status}`;
-              try {
-                const errorData = await response.json();
-                // Use a more specific error message from the backend if available
-                errorMessage = errorData.message || errorData.error || JSON.stringify(errorData);
-              } catch (jsonError) {
-                // If the response is not JSON, try to read it as text
-                errorMessage = await response.text();
-              }
-              throw new Error(errorMessage);
-            }
-
-            // If submission is successful
-            const newIncident = await response.json();
-            alert("Incident reported successfully!");
-            incidentForm.reset(); // Clear the form
-            fetchIncidents(); // Refresh the list of incidents
-          } catch (error) {
-            console.error("Submission error:", error);
-            alert(`Error submitting incident: ${error.message}`);
-          }
+        const list = loadIncidents();
+        list.unshift({
+          id: "i_" + Date.now(),
+          title,
+          description,
+          location,
+          reporter,
+          status,
+          createdAt: new Date().toISOString(),
         });
-
-        // Handle logout
-        logoutButton.addEventListener("click", (e) => {
-          e.preventDefault(); // Prevent the default link behavior
-          localStorage.removeItem("token"); // Clear the user's token
-          window.location.href = "/login.html"; // Redirect to login page
-        });
-
-        // Get current location functionality
-        document
-          .getElementById("get-location-btn")
-          .addEventListener("click", function () {
-            const locationInput = document.getElementById("location");
-
-            if (!navigator.geolocation) {
-              alert("Geolocation is not supported by your browser.");
-              return;
-            }
-
-            locationInput.placeholder = "Getting location...";
-
-            navigator.geolocation.getCurrentPosition(
-              (position) => {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                locationInput.value = `Lat: ${lat.toFixed(
-                  4
-                )}, Lon: ${lon.toFixed(4)}`;
-              },
-              (error) => {
-                let errorMessage = "Unable to retrieve your location. ";
-                switch (error.code) {
-                  case error.PERMISSION_DENIED:
-                    errorMessage +=
-                      "Permission was denied. Please ensure you are using a secure (https) connection and have granted location permissions.";
-                    break;
-                  case error.POSITION_UNAVAILABLE:
-                    errorMessage += "Location information is unavailable.";
-                    break;
-                  case error.TIMEOUT:
-                    errorMessage +=
-                      "The request to get user location timed out.";
-                    break;
-                  case error.UNKNOWN_ERROR:
-                    errorMessage += "An unknown error occurred.";
-                    break;
-                }
-                alert(errorMessage);
-                locationInput.placeholder = "e.g., Corner of Main St & 1st Ave";
-              }
-            );
-          });
-
-        // Initial fetch of incidents when the page loads
-        fetchIncidents();
+        saveIncidents(list);
+        reportForm.reset();
+        reportPanel.style.display = "none";
+        renderIncidents();
       });
+
+      logoutBtn.addEventListener("click", () => {
+        localStorage.removeItem("token");
+        // Keep user object removal optional: uncomment to clear user
+        // localStorage.removeItem(USER_KEY);
+        window.location.href = "./login.html";
+      });
+
+      // initial render
+      renderIncidents();
+
+      // expose function name compatibility if other scripts call fetchIncidents
+      window.fetchIncidents = renderIncidents;
     </script>
   </body>
 </html>
