@@ -198,6 +198,26 @@
         border: 1px solid rgba(255, 255, 255, 0.04);
       }
 
+      /* Hide summary cards / charts / preview box so only the incident list remains */
+      .top-cards,
+      .charts,
+      .chart-card,
+      .card.preview,
+      aside {
+        display: none !important;
+      }
+
+      /* Force main content to a single column so the incident log fills the page */
+      .layout {
+        grid-template-columns: 1fr !important;
+        gap: 0;
+      }
+
+      /* Slight spacing tweak for the remaining incident log card */
+      .card {
+        margin-bottom: 12px;
+      }
+
       @media (max-width: 1000px) {
         .layout {
           grid-template-columns: 1fr;
@@ -448,6 +468,10 @@
       // Data keys
       const INCIDENTS_KEY = "cier_incidents";
       const USER_KEY = "currentUser";
+      // Update this to your real backend endpoint
+      const API_INCIDENTS = "http://localhost:3800/incidents/all";
+      // POST/create endpoint (update if your API differs)
+      const API_INCIDENTS_POST = "http://localhost:3800/incidents";
 
       // DOM
       const currentUserEl = document.getElementById("current-user");
@@ -466,6 +490,60 @@
       const cancelReportBtn = document.getElementById("cancel-report");
       const reportForm = document.getElementById("report-incident-form");
       const logoutBtn = document.getElementById("logout-button");
+
+      // Fetch incidents from backend and update local storage so UI shows DB data
+      async function fetchServerIncidents() {
+        try {
+          const token = localStorage.getItem("token");
+          const res = await fetch(API_INCIDENTS, {
+            method: "GET",
+            headers: {
+              Accept: "application/json",
+              ...(token ? { Authorization: "Bearer " + token } : {}),
+            },
+          });
+          const text = await res.text();
+          let payload = null;
+          try {
+            payload = JSON.parse(text);
+          } catch {
+            payload = text;
+          }
+          if (!res.ok) {
+            console.warn("Server returned", res.status, payload);
+            return null;
+          }
+          // server may return array or { data: [...] }
+          const list = Array.isArray(payload)
+            ? payload
+            : payload && payload.data && Array.isArray(payload.data)
+            ? payload.data
+            : null;
+          if (!list) {
+            console.warn("Unexpected server payload:", payload);
+            return null;
+          }
+          // normalize minimal fields and save locally (keeps offline fallback)
+          const normalized = list.map((it) => ({
+            id: it.id || it._id || "i_" + Date.now() + Math.random(),
+            title: it.title || it.name || "",
+            description: it.description || it.details || "",
+            location: it.location || "",
+            reporter: it.reporter || it.email || "anonymous",
+            status: it.status || "open",
+            type: it.type || it.incidentType || "General",
+            severity: it.severity || "medium",
+            createdAt:
+              it.createdAt || it.created_at || new Date().toISOString(),
+            ...it,
+          }));
+          saveIncidents(normalized);
+          return normalized;
+        } catch (err) {
+          console.warn("Could not fetch incidents from server:", err);
+          return null;
+        }
+      }
 
       // initialize current user display
       const currentUser = localStorage.getItem(USER_KEY)
@@ -539,6 +617,21 @@
         totalCountEl.textContent = all.length;
       }
 
+      // Initial render + attempt to load from server and update UI
+      (async function initIncidents() {
+        renderIncidents(); // show local data immediately
+        const serverList = await fetchServerIncidents();
+        if (serverList) {
+          // server data saved to localStorage by fetchServerIncidents -> re-render
+          renderIncidents();
+        } else {
+          // server not available or returned error – UI remains using local data
+          console.info(
+            "Using local incidents (server not available or returned error)"
+          );
+        }
+      })();
+
       // helpers
       function escapeHtml(str) {
         return String(str).replace(
@@ -574,7 +667,7 @@
         reportPanel.style.display = "none";
       });
 
-      reportForm.addEventListener("submit", (e) => {
+      reportForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const title = document.getElementById("incident-title").value.trim();
         const description = document
@@ -598,9 +691,10 @@
           return;
         }
 
-        const list = loadIncidents();
-        list.unshift({
-          id: "i_" + Date.now(),
+        // optimistic local save
+        const tempId = "i_" + Date.now();
+        const prepared = {
+          id: tempId,
           title,
           description,
           location,
@@ -609,18 +703,174 @@
           type,
           severity,
           createdAt: new Date().toISOString(),
-        });
+        };
+        const list = loadIncidents();
+        list.unshift(prepared);
         saveIncidents(list);
+        renderIncidents();
         reportForm.reset();
         reportPanel.style.display = "none";
-        renderIncidents();
+
+        // attempt to POST to backend; replace optimistic record on success
+        try {
+          const token = localStorage.getItem("token");
+          const res = await fetch(API_INCIDENTS_POST, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { Authorization: "Bearer " + token } : {}),
+            },
+            body: JSON.stringify({
+              title,
+              description,
+              location,
+              reporter,
+              status,
+              type,
+              severity,
+            }),
+          });
+          const text = await res.text();
+          let body;
+          try {
+            body = JSON.parse(text);
+          } catch {
+            body = text;
+          }
+          if (res.ok) {
+            const serverItem =
+              body && typeof body === "object" ? body : prepared;
+            if (!serverItem.createdAt)
+              serverItem.createdAt = prepared.createdAt;
+            // replace optimistic entry
+            const updated = loadIncidents();
+            const idx = updated.findIndex((i) => i.id === tempId);
+            if (idx !== -1) updated.splice(idx, 1, serverItem);
+            else updated.unshift(serverItem);
+            saveIncidents(updated);
+            renderIncidents();
+            return;
+          } else {
+            console.error("Server error creating incident:", res.status, body);
+            alert(`Saved locally but server returned error ${res.status}`);
+            return;
+          }
+        } catch (err) {
+          console.warn(
+            "Network error when sending incident, saved locally.",
+            err
+          );
+          alert(
+            "No network — incident saved locally. It will appear in your incident log."
+          );
+          return;
+        }
       });
 
-      logoutBtn.addEventListener("click", () => {
-        localStorage.removeItem("token");
-        // Keep user object removal optional: uncomment to clear user
-        // localStorage.removeItem(USER_KEY);
-        window.location.href = "./login.html";
+      // submit from modal (save to same key and refresh table)
+      modalForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const title = document
+          .getElementById("modal-incident-title")
+          .value.trim();
+        const description = document
+          .getElementById("modal-incident-desc")
+          .value.trim();
+        const location = document
+          .getElementById("modal-incident-location")
+          .value.trim();
+        const reporter =
+          document.getElementById("modal-incident-reporter").value.trim() ||
+          JSON.parse(localStorage.getItem("currentUser") || "{}").email ||
+          "anonymous";
+        const status =
+          document.getElementById("modal-incident-status").value || "open";
+        const type =
+          document.getElementById("modal-incident-type").value.trim() ||
+          "General";
+        const severity =
+          document.getElementById("modal-incident-severity").value || "medium";
+        if (!title) {
+          alert("Please enter a title");
+          return;
+        }
+
+        const tempId = "i_" + Date.now();
+        const prepared = {
+          id: tempId,
+          title,
+          description,
+          location,
+          reporter,
+          status,
+          type,
+          severity,
+          createdAt: new Date().toISOString(),
+        };
+        const list = loadIncidents();
+        list.unshift(prepared);
+        saveIncidents(list);
+        renderIncidents();
+        closeModal();
+
+        try {
+          const token = localStorage.getItem("token");
+          const res = await fetch(API_INCIDENTS_POST, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { Authorization: "Bearer " + token } : {}),
+            },
+            body: JSON.stringify({
+              title,
+              description,
+              location,
+              reporter,
+              status,
+              type,
+              severity,
+            }),
+          });
+          const text = await res.text();
+          let body;
+          try {
+            body = JSON.parse(text);
+          } catch {
+            body = text;
+          }
+          if (res.ok) {
+            const serverItem =
+              body && typeof body === "object" ? body : prepared;
+            if (!serverItem.createdAt)
+              serverItem.createdAt = prepared.createdAt;
+            const updated = loadIncidents();
+            const idx = updated.findIndex((i) => i.id === tempId);
+            if (idx !== -1) updated.splice(idx, 1, serverItem);
+            else updated.unshift(serverItem);
+            saveIncidents(updated);
+            renderIncidents();
+            return;
+          } else {
+            console.error("Server error creating incident:", res.status, body);
+            alert(`Saved locally but server returned error ${res.status}`);
+            return;
+          }
+        } catch (err) {
+          console.warn(
+            "Network error when sending incident, saved locally.",
+            err
+          );
+          alert(
+            "No network — incident saved locally. It will appear in your incident log."
+          );
+          return;
+        }
+      });
+
+      // close modal on Escape
+      document.addEventListener("keydown", (ev) => {
+        if (ev.key === "Escape" && modalOverlay.style.display === "flex")
+          closeModal();
       });
 
       // wire modal behaviour (new)
@@ -657,62 +907,33 @@
       modalCancel.addEventListener("click", closeModal);
       closeModalBtn.addEventListener("click", closeModal);
 
-      // submit from modal (save to same key and refresh table)
-      modalForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const title = document
-          .getElementById("modal-incident-title")
-          .value.trim();
-        const description = document
-          .getElementById("modal-incident-desc")
-          .value.trim();
-        const location = document
-          .getElementById("modal-incident-location")
-          .value.trim();
-        const reporter =
-          document.getElementById("modal-incident-reporter").value.trim() ||
-          JSON.parse(localStorage.getItem("currentUser") || "{}").email ||
-          "anonymous";
-        const status =
-          document.getElementById("modal-incident-status").value || "open";
-        const type =
-          document.getElementById("modal-incident-type").value.trim() ||
-          "General";
-        const severity =
-          document.getElementById("modal-incident-severity").value || "medium";
-        if (!title) {
-          alert("Please enter a title");
+      // initial render
+      // renderIncidents(); <-- moved into initIncidents above
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const logoutBtn =
+          document.getElementById("logout-button") ||
+          document.getElementById("logout");
+        if (!logoutBtn) {
+          console.warn(
+            "Logout button not found (looked for #logout-button and #logout)"
+          );
           return;
         }
 
-        const list = loadIncidents();
-        list.unshift({
-          id: "i_" + Date.now(),
-          title,
-          description,
-          location,
-          reporter,
-          status,
-          type,
-          severity,
-          createdAt: new Date().toISOString(),
+        logoutBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          try {
+            localStorage.removeItem("token");
+          } catch (err) {
+            console.warn("Could not remove token", err);
+          }
+          // optionally clear current user:
+          // try { localStorage.removeItem('currentUser'); } catch {}
+          window.location.href = "./login.html";
         });
-        saveIncidents(list);
-        closeModal();
-        renderIncidents();
       });
-
-      // close modal on Escape
-      document.addEventListener("keydown", (ev) => {
-        if (ev.key === "Escape" && modalOverlay.style.display === "flex")
-          closeModal();
-      });
-
-      // initial render
-      renderIncidents();
-
-      // expose function name compatibility if other scripts call fetchIncidents
-      window.fetchIncidents = renderIncidents;
     </script>
   </body>
 </html>
