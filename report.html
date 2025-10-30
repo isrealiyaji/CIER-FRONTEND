@@ -117,6 +117,44 @@
         border: 1px solid rgba(255, 255, 255, 0.06);
         outline: none;
       }
+      /* Ensure select control and its dropdown options are readable */
+      select {
+        color: #e6eef8;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.01),
+          rgba(255, 255, 255, 0)
+        );
+        padding-right: 36px; /* room for custom arrow */
+        -webkit-appearance: none;
+        appearance: none;
+        position: relative;
+      }
+      /* Native option color/background (best effort across browsers) */
+      select option {
+        color: #0b1220; /* option text on dropdown menu */
+        background: #e6eef8; /* make options readable when opened */
+      }
+      /* Custom dropdown arrow using background gradients so it is visible */
+      select {
+        background-image: linear-gradient(45deg, transparent 50%, #e6eef8 50%),
+          linear-gradient(135deg, #e6eef8 50%, transparent 50%),
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.01),
+            rgba(255, 255, 255, 0)
+          );
+        background-position: calc(100% - 18px) calc(1em + 2px),
+          calc(100% - 13px) calc(1em + 2px), 0 0;
+        background-size: 6px 6px, 6px 6px, 100% 100%;
+        background-repeat: no-repeat;
+      }
+      /* Ensure the "Other" input text is visible */
+      #incident-type-other {
+        color: #e6eef8 !important;
+        background: transparent !important;
+        border: 1px solid rgba(255, 255, 255, 0.06) !important;
+      }
       textarea {
         min-height: 120px;
         resize: vertical;
@@ -233,6 +271,30 @@
           flex-direction: column-reverse;
         }
       }
+
+      /* Use-location button (more mature look) */
+      .use-loc-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(90deg, var(--accent), #48b5ff);
+        color: #fff;
+        border: none;
+        padding: 8px 10px;
+        border-radius: 10px;
+        box-shadow: 0 6px 18px rgba(99, 102, 241, 0.14);
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .use-loc-btn:disabled {
+        opacity: 0.7;
+        cursor: wait;
+      }
+      .use-loc-btn svg {
+        width: 16px;
+        height: 16px;
+        display: block;
+      }
     </style>
 
     <!-- lightweight chart (optional): Chart.js CDN -->
@@ -283,15 +345,36 @@
                   placeholder="you@example.com"
                 />
               </div>
-              <div style="width: 160px">
-                <label for="status">Status</label>
-                <select id="status" name="status">
-                  <option value="open">Open</option>
-                  <option value="investigating">Investigating</option>
-                  <option value="awaiting_approval">Awaiting approval</option>
-                  <option value="closed">Closed</option>
-                </select>
+              <div style="width: 200px">
+                <label for="incident-type">Incident Type</label>
+                <div style="display: flex; flex-direction: column; gap: 8px">
+                  <select id="incident-type" name="incident-type">
+                    <option value="fire">Fire</option>
+                    <option value="flood">Flood</option>
+                    <option value="theft">Theft</option>
+                    <option value="safety">Safety</option>
+                    <option value="it_outage">IT outage</option>
+                    <option value="medical">Medical</option>
+                    <option value="environmental">Environmental</option>
+                    <option value="other" selected>Other</option>
+                    <option value="more">More...</option>
+                  </select>
+                  <input
+                    id="incident-type-other"
+                    placeholder="If Other or More, describe here..."
+                    style="
+                      display: none;
+                      padding: 8px;
+                      border-radius: 8px;
+                      border: 1px solid rgba(255, 255, 255, 0.06);
+                      background: transparent;
+                      color: inherit;
+                    "
+                  />
+                </div>
               </div>
+              <!-- keep status hidden so dashboard logic (open/closed) still works -->
+              <input type="hidden" id="status" name="status" value="open" />
             </div>
 
             <div class="row">
@@ -307,10 +390,83 @@
                   <button
                     type="button"
                     id="use-location"
-                    class="btn"
+                    class="use-loc-btn"
                     title="Use my current location"
+                    aria-label="Use my current location"
                   >
-                    📍
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      aria-hidden="true"
+                      focusable="false"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M12 2v3"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M12 19v3"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M4.9 4.9l2.1 2.1"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M17 17l2.1 2.1"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M2 12h3"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M19 12h3"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M4.9 19.1l2.1-2.1"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M17 7l2.1-2.1"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="3"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        fill="rgba(255,255,255,0.05)"
+                      />
+                    </svg>
+                    Use my location
                   </button>
                 </div>
                 <div
@@ -434,6 +590,28 @@
       const INCIDENTS_KEY = "cier_incidents";
       const USER_KEY = "currentUser";
       const NOMINATIM_ENDPOINT = "https://nominatim.openstreetmap.org/reverse";
+
+      // Backend endpoint for creating incidents (update to your real API URL)
+      const API_INCIDENTS = "http://localhost:3800/incidents/";
+
+      // DOM refs for incident-type other field
+      const incidentTypeSelect = document.getElementById("incident-type");
+      const incidentTypeOther = document.getElementById("incident-type-other");
+
+      // show/hide "other" input when selection is Other/More
+      function toggleIncidentOther() {
+        const v = incidentTypeSelect.value;
+        if (v === "other" || v === "more") {
+          incidentTypeOther.style.display = "block";
+          incidentTypeOther.focus();
+        } else {
+          incidentTypeOther.style.display = "none";
+          incidentTypeOther.value = "";
+        }
+        updatePreview();
+      }
+      incidentTypeSelect.addEventListener("change", toggleIncidentOther);
+      incidentTypeOther.addEventListener("input", updatePreview);
 
       function loadIncidents() {
         try {
@@ -589,7 +767,13 @@
       function updatePreview() {
         const title =
           document.getElementById("title").value.trim() || "Untitled Incident";
-        const status = document.getElementById("status").value || "open";
+        let type = incidentTypeSelect?.value?.trim() || "other";
+        const otherText = incidentTypeOther?.value?.trim();
+        if ((type === "other" || type === "more") && otherText) {
+          type = otherText;
+        } else if (type === "more" && !otherText) {
+          type = "Other (more)";
+        }
         const location =
           document.getElementById("location").value.trim() || "—";
         const reporter =
@@ -600,7 +784,8 @@
         const severity = document.getElementById("severity").value || "low";
 
         pvTitle.textContent = title;
-        pvStatus.textContent = status.replace("_", " ");
+        // reuse pv-status element to show the incident type
+        pvStatus.textContent = type.replace(/_/g, " ");
         pvStatus.className = "badge " + severityClass(severity);
         pvLocation.textContent = "Location: " + location;
         pvReporter.textContent = "Reporter: " + reporter;
@@ -620,14 +805,15 @@
       }
 
       // live listeners
-      ["title", "status", "location", "reporter", "severity"].forEach((id) => {
+      ["title", "location", "reporter", "severity"].forEach((id) => {
         document.getElementById(id).addEventListener("input", updatePreview);
         document.getElementById(id).addEventListener("change", updatePreview);
       });
+      // incident-type handled above (change listener) and incident-type-other has input listener
       desc.addEventListener("input", updatePreview);
 
-      // form submit
-      form.addEventListener("submit", (e) => {
+      // form submit: try backend, fall back to localStorage; always update local log for immediate visibility
+      form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const title = document.getElementById("title").value.trim();
         if (!title) {
@@ -639,7 +825,8 @@
           if (!confirm("Description looks short. Submit anyway?")) return;
         }
 
-        const item = {
+        const prepared = {
+          // temporary client id — server may return real id
           id: "i_" + Date.now(),
           title,
           description,
@@ -648,22 +835,89 @@
             document.getElementById("reporter").value.trim() ||
             currentUser?.email ||
             "anonymous",
+          type: (function () {
+            const sel = incidentTypeSelect?.value || "other";
+            const other = incidentTypeOther?.value?.trim();
+            if ((sel === "other" || sel === "more") && other) return other;
+            return sel;
+          })(),
           status: document.getElementById("status").value || "open",
           severity: document.getElementById("severity").value || "low",
           createdAt: new Date().toISOString(),
           resolvedAt: null,
         };
 
-        const list = loadIncidents();
-        list.unshift(item);
-        saveIncidents(list);
-
-        // update stats + chart, then redirect
+        // Optimistically save locally so the incident log updates immediately
+        const localList = loadIncidents();
+        localList.unshift(prepared);
+        saveIncidents(localList);
         refreshStats();
         updateChart();
 
-        alert("Incident submitted.");
-        window.location.href = "./dashboard.html";
+        // Attempt to send to backend; on success replace local item with server response
+        try {
+          const token = localStorage.getItem("token");
+          const res = await fetch(API_INCIDENTS, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { Authorization: "Bearer " + token } : {}),
+            },
+            body: JSON.stringify({
+              title: prepared.title,
+              description: prepared.description,
+              location: prepared.location,
+              reporter: prepared.reporter,
+              type: prepared.type,
+              status: prepared.status,
+              severity: prepared.severity,
+            }),
+          });
+
+          const text = await res.text();
+          let body;
+          try {
+            body = JSON.parse(text);
+          } catch {
+            body = text;
+          }
+
+          if (res.ok) {
+            const serverItem =
+              body && typeof body === "object" ? body : prepared;
+            if (!serverItem.createdAt)
+              serverItem.createdAt = prepared.createdAt;
+            const updated = loadIncidents();
+            const idx = updated.findIndex((i) => i.id === prepared.id);
+            if (idx !== -1) updated.splice(idx, 1, serverItem);
+            else updated.unshift(serverItem);
+            saveIncidents(updated);
+            refreshStats();
+            updateChart();
+            alert("Incident submitted and saved to server.");
+            window.location.href = "./dashboard.html";
+            return;
+          } else {
+            console.error("Server responded with error:", res.status, body);
+            alert(
+              `Saved locally but server returned error ${res.status}: ${
+                body && body.error ? body.error : JSON.stringify(body)
+              }`
+            );
+            window.location.href = "./dashboard.html";
+            return;
+          }
+        } catch (err) {
+          console.warn(
+            "Network error when sending incident, saved locally.",
+            err
+          );
+          alert(
+            "No network — incident saved locally. It will appear in your incident log."
+          );
+          window.location.href = "./dashboard.html";
+          return;
+        }
       });
 
       cancelBtn.addEventListener("click", () => {
@@ -690,6 +944,7 @@
 
       // init
       (function init() {
+        toggleIncidentOther(); // ensure visibility state matches select value
         updatePreview();
         refreshStats();
         setupChart();
