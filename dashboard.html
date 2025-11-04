@@ -240,6 +240,9 @@
         </div>
         <div class="controls">
           <div id="current-user" class="small">Signed in</div>
+          <button id="refresh-server" class="btn" title="Refresh from server">
+            Refresh
+          </button>
           <!-- Replace the existing Report button or its JS handler with a direct link -->
           <!-- In the header/aside where the Report button exists, make it a link -->
           <div style="margin: 12px 0">
@@ -468,10 +471,10 @@
       // Data keys
       const INCIDENTS_KEY = "cier_incidents";
       const USER_KEY = "currentUser";
-      // Update this to your real backend endpoint
-      const API_INCIDENTS = "http://localhost:3800/incidents/all";
-      // POST/create endpoint (update if your API differs)
-      const API_INCIDENTS_POST = "http://localhost:3800/incidents";
+      // Update this to your real backend endpoint (point to your SQL-backed API)
+      const API_INCIDENTS = "http://localhost:3800/api/incidents"; // GET
+      const API_INCIDENTS_POST = "http://localhost:3800/api/incidents"; // POST
+      const SERVER_POLL_INTERVAL = 15000; // ms - adjust as needed
 
       // DOM
       const currentUserEl = document.getElementById("current-user");
@@ -490,6 +493,7 @@
       const cancelReportBtn = document.getElementById("cancel-report");
       const reportForm = document.getElementById("report-incident-form");
       const logoutBtn = document.getElementById("logout-button");
+      const refreshServerBtn = document.getElementById("refresh-server");
 
       // Fetch incidents from backend and update local storage so UI shows DB data
       async function fetchServerIncidents() {
@@ -499,42 +503,37 @@
             method: "GET",
             headers: {
               Accept: "application/json",
+              "Content-Type": "application/json",
               ...(token ? { Authorization: "Bearer " + token } : {}),
             },
           });
           const text = await res.text();
-          let payload = null;
-          try {
-            payload = JSON.parse(text);
-          } catch {
-            payload = text;
-          }
+          let payload;
+          try { payload = JSON.parse(text); } catch { payload = text; }
           if (!res.ok) {
             console.warn("Server returned", res.status, payload);
             return null;
           }
-          // server may return array or { data: [...] }
-          const list = Array.isArray(payload)
-            ? payload
-            : payload && payload.data && Array.isArray(payload.data)
-            ? payload.data
-            : null;
+          // server may return array or { data: [...] } or { incidents: [...] }
+          const list =
+            Array.isArray(payload) ? payload :
+            (payload && Array.isArray(payload.data) ? payload.data :
+            (payload && Array.isArray(payload.incidents) ? payload.incidents : null));
           if (!list) {
-            console.warn("Unexpected server payload:", payload);
+            console.warn("Unexpected server payload shape:", payload);
             return null;
           }
           // normalize minimal fields and save locally (keeps offline fallback)
-          const normalized = list.map((it) => ({
-            id: it.id || it._id || "i_" + Date.now() + Math.random(),
+          const normalized = list.map((it, idx) => ({
+            id: it.id || it._id || it.uuid || `srv_${Date.now()}_${idx}``,
             title: it.title || it.name || "",
             description: it.description || it.details || "",
-            location: it.location || "",
+            location: it.location || it.address || "",
             reporter: it.reporter || it.email || "anonymous",
             status: it.status || "open",
             type: it.type || it.incidentType || "General",
-            severity: it.severity || "medium",
-            createdAt:
-              it.createdAt || it.created_at || new Date().toISOString(),
+            severity: it.severity || it.sev || "medium",
+            createdAt: it.createdAt || it.created_at || it.date || new Date().toISOString(),
             ...it,
           }));
           saveIncidents(normalized);
@@ -543,6 +542,36 @@
           console.warn("Could not fetch incidents from server:", err);
           return null;
         }
+      }
+
+      // Sync helper: fetch from server and re-render, returns boolean success
+      async function syncFromServer() {
+        const list = await fetchServerIncidents();
+        if (list) {
+          renderIncidents();
+          return true;
+        } else {
+          return false;
+        }
+      }
+
+      // Poll server regularly for updates
+      let pollHandle = null;
+      function startPolling() {
+        if (pollHandle) clearInterval(pollHandle);
+        pollHandle = setInterval(() => {
+          syncFromServer().catch(err => console.warn('sync error', err));
+        }, SERVER_POLL_INTERVAL);
+      }
+
+      // wire refresh button
+      if (refreshServerBtn) {
+        refreshServerBtn.addEventListener('click', async () => {
+          refreshServerBtn.disabled = true;
+          const ok = await syncFromServer();
+          refreshServerBtn.disabled = false;
+          if (!ok) alert('Could not load incidents from server. See console for details.');
+        });
       }
 
       // initialize current user display
@@ -620,16 +649,8 @@
       // Initial render + attempt to load from server and update UI
       (async function initIncidents() {
         renderIncidents(); // show local data immediately
-        const serverList = await fetchServerIncidents();
-        if (serverList) {
-          // server data saved to localStorage by fetchServerIncidents -> re-render
-          renderIncidents();
-        } else {
-          // server not available or returned error – UI remains using local data
-          console.info(
-            "Using local incidents (server not available or returned error)"
-          );
-        }
+        const ok = await syncFromServer();
+        if (!ok) console.info("Using local incidents (server not available or returned error)");
       })();
 
       // helpers
