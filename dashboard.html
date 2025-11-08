@@ -472,8 +472,8 @@
       const INCIDENTS_KEY = "cier_incidents";
       const USER_KEY = "currentUser";
       // Update this to your real backend endpoint (point to your SQL-backed API)
-      const API_INCIDENTS = "http://localhost:3800/api/incidents"; // GET
-      const API_INCIDENTS_POST = "http://localhost:3800/api/incidents"; // POST
+      const API_INCIDENTS = "http://localhost:3800/incidents/all"; // GET
+      const API_INCIDENTS_POST = "http://localhost:3800/incidents/all"; // POST
       const SERVER_POLL_INTERVAL = 15000; // ms - adjust as needed
 
       // DOM
@@ -499,27 +499,59 @@
       async function fetchServerIncidents() {
         try {
           const token = localStorage.getItem("token");
-          const res = await fetch(API_INCIDENTS, {
+          // cache-bust to avoid browser cached responses while debugging
+          const url =
+            API_INCIDENTS +
+            (API_INCIDENTS.includes("?") ? "&" : "?") +
+            "_cb=" +
+            Date.now();
+          console.debug("[fetchServerIncidents] requesting", url, {
+            tokenPresent: !!token,
+          });
+          const res = await fetch(url, {
             method: "GET",
             headers: {
               Accept: "application/json",
               "Content-Type": "application/json",
+              "Cache-Control": "no-cache",
               ...(token ? { Authorization: "Bearer " + token } : {}),
             },
           });
+          console.debug("[fetchServerIncidents] response status", res.status);
           const text = await res.text();
+          console.debug("[fetchServerIncidents] raw response text", text);
           let payload;
-          try { payload = JSON.parse(text); } catch { payload = text; }
+          try {
+            payload = JSON.parse(text);
+          } catch {
+            payload = text;
+          }
+          console.debug("[fetchServerIncidents] parsed payload", payload);
           if (!res.ok) {
+            console.error(
+              "[fetchServerIncidents] server returned non-OK",
+              res.status,
+              payload
+            );
             console.warn("Server returned", res.status, payload);
             return null;
           }
           // server may return array or { data: [...] } or { incidents: [...] }
-          const list =
-            Array.isArray(payload) ? payload :
-            (payload && Array.isArray(payload.data) ? payload.data :
-            (payload && Array.isArray(payload.incidents) ? payload.incidents : null));
+          const list = Array.isArray(payload)
+            ? payload
+            : payload && Array.isArray(payload.data)
+            ? payload.data
+            : payload && Array.isArray(payload.incidents)
+            ? payload.incidents
+            : null;
+          console.debug(
+            "[fetchServerIncidents] resolved list length",
+            Array.isArray(list) ? list.length : "not-array"
+          );
           if (!list) {
+            console.error(
+              "[fetchServerIncidents] unexpected payload shape — inspect above logs"
+            );
             console.warn("Unexpected server payload shape:", payload);
             return null;
           }
@@ -533,12 +565,24 @@
             status: it.status || "open",
             type: it.type || it.incidentType || "General",
             severity: it.severity || it.sev || "medium",
-            createdAt: it.createdAt || it.created_at || it.date || new Date().toISOString(),
+            createdAt:
+              it.createdAt ||
+              it.created_at ||
+              it.date ||
+              new Date().toISOString(),
             ...it,
           }));
+          // expose last payload for quick debug from console
+          window.__lastServerIncidents = { url, raw: payload, normalized };
           saveIncidents(normalized);
+          console.info(
+            "[fetchServerIncidents] saved",
+            normalized.length,
+            "incidents to localStorage"
+          );
           return normalized;
         } catch (err) {
+          console.error("[fetchServerIncidents] fetch error", err);
           console.warn("Could not fetch incidents from server:", err);
           return null;
         }
@@ -560,17 +604,20 @@
       function startPolling() {
         if (pollHandle) clearInterval(pollHandle);
         pollHandle = setInterval(() => {
-          syncFromServer().catch(err => console.warn('sync error', err));
+          syncFromServer().catch((err) => console.warn("sync error", err));
         }, SERVER_POLL_INTERVAL);
       }
 
       // wire refresh button
       if (refreshServerBtn) {
-        refreshServerBtn.addEventListener('click', async () => {
+        refreshServerBtn.addEventListener("click", async () => {
           refreshServerBtn.disabled = true;
           const ok = await syncFromServer();
           refreshServerBtn.disabled = false;
-          if (!ok) alert('Could not load incidents from server. See console for details.');
+          if (!ok)
+            alert(
+              "Could not load incidents from server. See console for details."
+            );
         });
       }
 
@@ -628,4 +675,40 @@
         <td class="small">${new Date(
           item.createdAt || item.date || Date.now()
         ).toLocaleString()}</td>
-        <td><span class="status $
+        <td><span class="status ${escapeHtml(item.status || "open")}">${
+            item.status === "closed" ? "✔️" : "⏳"
+          }</span></td>
+      `;
+          tr.addEventListener("click", () => {
+            // toggle closed/open status on click
+            const newStatus = item.status === "closed" ? "open" : "closed";
+            updateIncidentStatus(item.id, newStatus);
+          });
+          tbody.appendChild(tr);
+        });
+
+        totalIncEl.textContent = filtered.length;
+        openCountEl.textContent = filtered.filter(
+          (it) => it.status === "open"
+        ).length;
+        closedCountEl.textContent = filtered.filter(
+          (it) => it.status === "closed"
+        ).length;
+      }
+
+      function escapeHtml(str) {
+        if (typeof str !== "string") return "";
+        return str
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      // initial load
+      startPolling();
+      fetchServerIncidents();
+    </script>
+  </body>
+</html>
