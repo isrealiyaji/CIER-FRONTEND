@@ -6,51 +6,371 @@
     <title>Report Incident — CIER</title>
 
     <style>
-      /* CLEAN LIGHT THEME */
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-      :root{
-        --bg:#f4f7fa;
-        --panel:#ffffff;
-        --muted:#6b7280;
-        --primary:#2563eb;
-        --accent:#06b6d4;
-        --danger:#ef4444;
-        --success:#10b981;
-        --card-border: rgba(15,23,42,0.04);
-        --radius:12px;
+      /* CLEAN LIGHT THEME — typography & spacing tuned */
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap");
+      :root {
+        --bg: #f4f7fa;
+        --panel: #ffffff;
+        --muted: #6b7280;
+        --primary: #2563eb;
+        --accent: #06b6d4;
+        --danger: #ef4444;
+        --success: #10b981;
+        --card-border: rgba(15, 23, 42, 0.04);
+        --radius: 14px;
+        /* scale */
+        --base-font: 16px;
+        --heading-xl: 22px; /* main page title */
+        --heading-md: 18px; /* section headings */
+        --label-size: 14px;
+        --input-padding: 12px;
+        --card-padding: 20px;
+        --gap: 16px;
+        --metric-size: 20px; /* small metrics */
       }
-      *{box-sizing:border-box}
-      html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:#0f172a;-webkit-font-smoothing:antialiased}
-      .container{max-width:980px;margin:30px auto;padding:20px}
-      header.app-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
-      .logo{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
-      h1{margin:0;font-size:18px;color:#0f172a}
-      .subtitle{color:var(--muted);font-size:13px}
-      .card{background:var(--panel);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px;box-shadow:0 6px 22px rgba(2,6,23,0.06)}
-      .layout{display:grid;grid-template-columns:1fr 340px;gap:18px}
-      @media(max-width:980px){ .layout{grid-template-columns:1fr} }
-      label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-      input[type="text"],input[type="email"],textarea,select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);background:transparent;color:#0f172a}
-      textarea{min-height:120px;resize:vertical}
-      .row{display:flex;gap:12px}
-      .col{flex:1}
-      .small{font-size:13px;color:var(--muted)}
-      .use-loc-btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;border:none;padding:8px 10px;border-radius:8px;cursor:pointer}
-      .actions{display:flex;gap:12px;justify-content:flex-end;margin-top:10px}
-      .btn{padding:10px 14px;border-radius:10px;border:1px solid rgba(15,23,42,0.04);background:transparent;color:var(--muted);cursor:pointer}
-      .btn.primary{background:var(--primary);color:#fff;border:none;box-shadow:0 8px 24px rgba(37,99,235,0.12)}
-      .preview .badge{padding:6px 8px;border-radius:999px;font-weight:700;font-size:13px}
-      .severity-low{background:rgba(16,185,129,0.08);color:var(--success)}
-      .severity-medium{background:rgba(99,102,241,0.06);color:var(--primary)}
-      .severity-high{background:rgba(249,115,22,0.08);color:#f97316}
-      .severity-critical{background:rgba(239,68,68,0.08);color:var(--danger)}
-      .stat-grid{display:flex;gap:10px;margin-top:10px}
-      .stat{flex:1;padding:12px;background:linear-gradient(180deg,rgba(2,6,23,0.02),transparent);border-radius:8px;text-align:center;border:1px solid rgba(15,23,42,0.03)}
-      .stat h3{margin:0;font-size:18px;color:#0f172a}
-      .stat p{margin:6px 0 0 0;color:var(--muted);font-size:12px}
-      .helper{font-size:12px;color:var(--muted);margin-top:6px}
-      footer.note{margin-top:14px;font-size:13px;color:var(--muted)}
-      input:focus,textarea:focus,select:focus{outline:none;box-shadow:0 8px 30px rgba(37,99,235,0.06);border-color:rgba(37,99,235,0.4)}
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+        font-size: var(--base-font);
+        -webkit-font-smoothing: antialiased;
+        background: var(--bg);
+        color: #0f172a;
+      }
+
+      /* top navigation styles */
+      .top-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 18px;
+        padding: 6px 0;
+      }
+      .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: inherit;
+      }
+      .nav-title {
+        display: flex;
+        flex-direction: column;
+        line-height: 1;
+      }
+      .nav-title .main {
+        font-weight: 700;
+        font-size: 16px;
+      }
+      .nav-title .sub {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 2px;
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .nav-btn {
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(15, 23, 42, 0.04);
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        font-weight: 700;
+      }
+      .nav-btn.primary {
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        color: #fff;
+        border: none;
+        box-shadow: 0 10px 28px rgba(37, 99, 235, 0.08);
+      }
+      @media (max-width: 720px) {
+        .nav-title .sub {
+          display: none;
+        }
+      }
+      .container {
+        max-width: 980px;
+        margin: 34px auto;
+        padding: 28px;
+      }
+      header.app-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--gap);
+        margin-bottom: 20px;
+      }
+      .logo {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: 800;
+        font-size: 18px;
+      }
+      h1 {
+        margin: 0;
+        font-size: var(--heading-xl);
+        font-weight: 700;
+        letter-spacing: 0.2px;
+      }
+      .subtitle {
+        color: var(--muted);
+        font-size: 14px;
+        margin-top: 6px;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--card-border);
+        border-radius: var(--radius);
+        padding: var(--card-padding);
+        box-shadow: 0 8px 28px rgba(2, 6, 23, 0.06);
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 20px;
+      }
+      @media (max-width: 980px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      label {
+        display: block;
+        font-size: var(--label-size);
+        color: var(--muted);
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+      input[type="text"],
+      input[type="email"],
+      textarea,
+      select {
+        width: 100%;
+        padding: var(--input-padding);
+        border-radius: 12px;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        background: transparent;
+        color: #0f172a;
+        font-size: 15px;
+      }
+      textarea {
+        min-height: 140px;
+        resize: vertical;
+      }
+
+      .row {
+        display: flex;
+        gap: 12px;
+      }
+      .col {
+        flex: 1;
+      }
+
+      .small {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .helper {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 8px;
+      }
+
+      /* Improved button styles: color, hover, focus, active, disabled */
+      .btn {
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          transparent
+        );
+        color: #0f172a;
+        cursor: pointer;
+        font-weight: 700;
+        transition: transform 0.06s ease, box-shadow 0.12s ease,
+          background 0.12s ease, filter 0.12s ease;
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(37, 99, 235, 0.08);
+      }
+      .btn:active {
+        transform: translateY(0);
+        box-shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
+      }
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      /* Primary action — strong, accessible, consistent with theme */
+      .btn.primary {
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        color: #ffffff;
+        border: none;
+        box-shadow: 0 14px 40px rgba(37, 99, 235, 0.12);
+      }
+      .btn.primary:hover {
+        filter: brightness(0.96);
+        box-shadow: 0 20px 48px rgba(37, 99, 235, 0.14);
+      }
+      .btn.primary:focus-visible {
+        outline: 3px solid rgba(37, 99, 235, 0.16);
+        outline-offset: 3px;
+        border-radius: 10px;
+      }
+
+      /* Ghost / secondary action — subtle, but keyboard-focusable */
+      .btn.ghost {
+        background: transparent;
+        color: var(--primary);
+        border: 1px solid rgba(37, 99, 235, 0.12);
+      }
+      .btn.ghost:hover {
+        background: rgba(37, 99, 235, 0.04);
+        color: var(--primary);
+        box-shadow: none;
+      }
+      .btn.ghost:focus-visible {
+        outline: 3px solid rgba(37, 99, 235, 0.12);
+        outline-offset: 3px;
+        border-radius: 10px;
+      }
+
+      /* Use-location special button (keeps icon, stronger accent) */
+      .use-loc-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: linear-gradient(90deg, var(--accent), var(--primary));
+        color: #fff;
+        border: none;
+        font-weight: 700;
+        box-shadow: 0 10px 30px rgba(6, 182, 212, 0.08);
+        transition: transform 0.08s ease, filter 0.12s ease;
+      }
+      .use-loc-btn:hover {
+        transform: translateY(-2px);
+        filter: brightness(0.98);
+      }
+      .use-loc-btn:disabled {
+        opacity: 0.7;
+        transform: none;
+        cursor: wait;
+      }
+
+      /* keyboard and reduced-motion support */
+      :focus:not(:focus-visible) {
+        outline: none;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .btn,
+        .use-loc-btn {
+          transition: none !important;
+        }
+      }
+
+      /* preview / metrics */
+      .preview h3 {
+        font-size: var(--heading-md);
+        margin: 0 0 6px 0;
+        font-weight: 700;
+      }
+      .preview .badge {
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 13px;
+      }
+      .stat-grid {
+        display: flex;
+        gap: 12px;
+        margin-top: 14px;
+      }
+      .stat {
+        flex: 1;
+        padding: 14px;
+        background: linear-gradient(180deg, rgba(2, 6, 23, 0.02), transparent);
+        border-radius: 10px;
+        text-align: center;
+        border: 1px solid rgba(15, 23, 42, 0.03);
+      }
+      .stat h3 {
+        margin: 0;
+        font-size: 20px;
+        color: #0f172a;
+        font-weight: 800;
+      }
+      .stat p {
+        margin: 6px 0 0 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      /* form helper sizes */
+      #desc-count {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 8px;
+        display: block;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        color: #0f172a;
+        margin-top: 12px;
+        font-size: 14px;
+      }
+      th,
+      td {
+        padding: 12px;
+        border-bottom: 1px solid rgba(15, 23, 42, 0.04);
+      }
+      th {
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+      }
+
+      input:focus,
+      textarea:focus,
+      select:focus {
+        outline: none;
+        box-shadow: 0 10px 36px rgba(37, 99, 235, 0.06);
+        border-color: rgba(37, 99, 235, 0.4);
+      }
     </style>
 
     <!-- lightweight chart (optional): Chart.js CDN -->
@@ -58,24 +378,27 @@
   </head>
   <body>
     <div class="container">
-      <header class="app-header">
-        <div class="brand">
-          <div class="logo">CI</div>
-          <div class="title">
-            <h1>CIER — Report Incident</h1>
-            <p>
-              Create a new incident report — changes save locally and appear on
-              the dashboard.
-            </p>
-          </div>
+      <nav class="top-nav" role="navigation" aria-label="Main">
+        <div class="nav-left">
+          <a href="./dashboard.html" class="nav-brand" title="CIER dashboard">
+            <div class="logo">CI</div>
+            <div class="nav-title">
+              <div class="main">CIER</div>
+              <div class="sub">Report Incident</div>
+            </div>
+          </a>
         </div>
-        <div style="display: flex; gap: 8px; align-items: center">
-          <a href="./dashboard.html" class="btn" style="text-decoration: none"
+
+        <div class="nav-right">
+          <!-- Back (link) -->
+          <a href="./dashboard.html" class="nav-btn" title="Back to dashboard"
             >← Back</a
           >
-          <button id="logout" class="btn">Logout</button>
+
+          <!-- Logout (button) -->
+          <button id="logout" class="nav-btn" title="Logout">Logout</button>
         </div>
-      </header>
+      </nav>
 
       <main class="layout">
         <section class="card">
