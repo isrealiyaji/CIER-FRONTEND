@@ -6,62 +6,141 @@
     <title>Report Incident — CIER</title>
 
     <style>
-      /* CLEAN LIGHT THEME — typography & spacing tuned */
       @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap");
+
       :root {
         --bg: #f4f7fa;
-        --panel: #ffffff;
+        --surface: rgba(255, 255, 255, 0.82);
+        --nav-bg: rgba(255, 255, 255, 0.88);
+        --text: #0f172a;
         --muted: #6b7280;
         --muted-strong: rgba(15, 23, 42, 0.58);
         --label-color: rgba(15, 23, 42, 0.68);
-        --primary: #2563eb;
-        --accent: #06b6d4;
-        --primary-solid: #1d4ed8; /* new solid button color */
+        --primary-solid: #1d4ed8;
         --danger: #ef4444;
         --success: #10b981;
-        --card-border: rgba(15, 23, 42, 0.04);
         --radius: 14px;
-        --text: #0f172a;
-        --nav-bg: rgba(255, 255, 255, 0.88);
-        --surface: rgba(255, 255, 255, 0.82);
+        --card-border: rgba(15, 23, 42, 0.04);
         --shadow-nav: 0 16px 36px rgba(15, 23, 42, 0.18);
         --shadow-card: 0 24px 50px rgba(15, 23, 42, 0.12);
         --glass: rgba(15, 23, 42, 0.04);
-        /* scale */
         --base-font: 16px;
         --heading-xl: 22px;
-        --heading-md: 18px;
-        --label-size: 14px;
-        --input-padding: 12px;
-        --card-padding: 20px;
-        --gap: 16px;
-        --metric-size: 20px;
       }
+
       * {
         box-sizing: border-box;
       }
+
       html,
       body {
-        height: 100%;
         margin: 0;
+        min-height: 100%;
         font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
         font-size: var(--base-font);
-        -webkit-font-smoothing: antialiased;
-        background: var(--bg);
-        color: var(--text);
-      }
-
-      /* typography & spacing refresh */
-      html,
-      body {
         line-height: 1.6;
         letter-spacing: 0.015em;
+        background: var(--bg);
+        color: var(--text);
       }
 
       .container {
         max-width: 1100px;
         margin: 34px auto;
         padding: 28px 26px;
+      }
+
+      .top-nav {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 26px;
+        padding: 14px 22px;
+        border-radius: 12px;
+        background: var(--nav-bg);
+        backdrop-filter: blur(14px);
+        box-shadow: var(--shadow-nav);
+      }
+
+      .nav-left,
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .logo {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        background: var(--primary-solid);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-weight: 800;
+        font-size: 18px;
+      }
+
+      .nav-title {
+        display: flex;
+        flex-direction: column;
+        line-height: 1;
+      }
+
+      .nav-title .main {
+        font-weight: 700;
+        font-size: 16px;
+      }
+
+      .nav-title .sub {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 2px;
+      }
+
+      .nav-btn,
+      .btn,
+      .use-loc-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 18px;
+        border-radius: 10px;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        background: transparent;
+        color: var(--text);
+        cursor: pointer;
+        font-weight: 700;
+        transition: transform 0.06s ease, box-shadow 0.12s ease;
+      }
+
+      .btn:hover,
+      .nav-btn:hover,
+      .use-loc-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(2, 6, 23, 0.1);
+      }
+
+      .btn.primary,
+      .nav-btn.primary,
+      .use-loc-btn {
+        background: var(--primary-solid);
+        color: #fff;
+        border: none;
+        box-shadow: 0 16px 40px rgba(29, 78, 216, 0.18);
       }
 
       .layout {
@@ -71,139 +150,6 @@
         align-items: start;
       }
 
-      .preview {
-        max-width: 380px;
-        margin-left: auto;
-      }
-
-      @media (max-width: 1040px) {
-        .layout {
-          grid-template-columns: 1fr;
-          gap: 18px;
-        }
-      }
-
-      /* top navigation styles */
-      .top-nav {
-        position: sticky;
-        top: 0;
-        z-index: 40;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        margin-bottom: 26px;
-        padding: 14px 22px;
-        border-radius: 12px;
-        background: var(--nav-bg);
-        backdrop-filter: blur(14px);
-        box-shadow: var(--shadow-nav);
-      }
-      @media (max-width: 720px) {
-        .top-nav {
-          gap: 12px;
-          padding: 12px 16px;
-          margin-bottom: 20px;
-        }
-      }
-
-      .nav-left {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-      .nav-brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        text-decoration: none;
-        color: inherit;
-      }
-      .nav-title {
-        display: flex;
-        flex-direction: column;
-        line-height: 1;
-      }
-      .nav-title .main {
-        font-weight: 700;
-        font-size: 16px;
-      }
-      .nav-title .sub {
-        color: var(--muted);
-        font-size: 13px;
-        margin-top: 2px;
-      }
-      .nav-right {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-      .nav-btn {
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 12px 18px;
-        border-radius: 10px;
-        border: 1px solid rgba(15, 23, 42, 0.04);
-        background: transparent;
-        color: var(--text);
-        cursor: pointer;
-        font-weight: 700;
-      }
-      .nav-btn.primary {
-        background: var(--primary-solid);
-        color: #ffffff;
-        border: none;
-        box-shadow: 0 16px 40px rgba(29, 78, 216, 0.18);
-        padding: 12px 20px;
-        letter-spacing: 0.02em;
-      }
-      .nav-btn.primary:hover {
-        filter: brightness(0.94);
-        box-shadow: 0 22px 52px rgba(29, 78, 216, 0.2);
-      }
-      @media (max-width: 720px) {
-        .nav-title .sub {
-          display: none;
-        }
-      }
-      .container {
-        max-width: 980px;
-        margin: 34px auto;
-        padding: 28px;
-      }
-      header.app-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: var(--gap);
-        margin-bottom: 20px;
-      }
-      .logo {
-        width: 56px;
-        height: 56px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, var(--primary), var(--accent));
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        font-weight: 800;
-        font-size: 18px;
-      }
-      h1 {
-        margin: 0;
-        font-size: var(--heading-xl);
-        font-weight: 700;
-        letter-spacing: 0.2px;
-      }
-      .subtitle {
-        color: var(--muted);
-        font-size: 14px;
-        margin-top: 6px;
-      }
-
       .card {
         background: var(--surface);
         border: 1px solid var(--card-border);
@@ -211,37 +157,30 @@
         padding: 20px 22px;
         box-shadow: var(--shadow-card);
         backdrop-filter: blur(18px);
-        position: relative;
-        z-index: 1;
       }
-      .card form {
+
+      form {
         display: flex;
         flex-direction: column;
         gap: 16px;
-      }
-
-      .card form > div:not(.row) {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
       }
 
       .row {
         display: flex;
         gap: 14px;
       }
+
       .col {
         flex: 1;
       }
 
       label {
-        display: block;
         font-size: 15px;
-        letter-spacing: 0.01em;
         color: var(--label-color);
-        margin-bottom: 8px;
         font-weight: 600;
+        margin-bottom: 8px;
       }
+
       input[type="text"],
       input[type="email"],
       textarea,
@@ -249,187 +188,87 @@
         width: 100%;
         padding: 14px 16px;
         font-size: 15px;
-        line-height: 1.5;
         border-radius: 12px;
         border: 1px solid rgba(15, 23, 42, 0.06);
         background: transparent;
         color: var(--text);
       }
+
       textarea {
         min-height: 140px;
         resize: vertical;
       }
 
       .small,
-      .helper,
-      .preview .small {
+      .helper {
         font-size: 13.5px;
         color: var(--muted-strong);
       }
 
-      /* Improved button styles: color, hover, focus, active, disabled */
-      .btn {
-        padding: 12px 18px;
-        border-radius: 10px;
-        border: 1px solid rgba(15, 23, 42, 0.06);
-        background: linear-gradient(
-          180deg,
-          rgba(255, 255, 255, 0.02),
-          transparent
-        );
-        color: var(--text);
-        cursor: pointer;
-        font-weight: 700;
-        transition: transform 0.06s ease, box-shadow 0.12s ease,
-          background 0.12s ease, filter 0.12s ease;
-      }
-      .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(37, 99, 235, 0.08);
-      }
-      .btn:active {
-        transform: translateY(0);
-        box-shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
-      }
-      .btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        transform: none;
+      .preview {
+        max-width: 380px;
+        margin-left: auto;
       }
 
-      /* Primary action — strong, accessible, consistent with theme */
-      .btn.primary {
-        background: var(--primary-solid);
-        color: #ffffff;
-        border: none;
-        box-shadow: 0 16px 40px rgba(29, 78, 216, 0.18);
-        padding: 12px 20px;
-        letter-spacing: 0.02em;
-      }
-      .btn.primary:hover {
-        filter: brightness(0.94);
-        box-shadow: 0 22px 52px rgba(29, 78, 216, 0.2);
-      }
-      .btn.primary:focus-visible {
-        outline: 3px solid rgba(37, 99, 235, 0.16);
-        outline-offset: 3px;
-        border-radius: 10px;
-      }
-
-      /* Ghost / secondary action — subtle, but keyboard-focusable */
-      .btn.ghost {
-        background: transparent;
-        color: var(--primary);
-        border: 1px solid rgba(37, 99, 235, 0.12);
-      }
-      .btn.ghost:hover {
-        background: rgba(37, 99, 235, 0.04);
-        color: var(--primary);
-        box-shadow: none;
-      }
-      .btn.ghost:focus-visible {
-        outline: 3px solid rgba(37, 99, 235, 0.12);
-        outline-offset: 3px;
-        border-radius: 10px;
-      }
-
-      /* Use-location special button (keeps icon, stronger accent) */
-      .use-loc-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 12px;
-        border-radius: 10px;
-        background: var(--primary-solid);
-        color: #fff;
-        border: none;
-        font-weight: 700;
-        box-shadow: 0 12px 32px rgba(29, 78, 216, 0.14);
-        transition: transform 0.08s ease, filter 0.12s ease;
-      }
-      .use-loc-btn:hover {
-        transform: translateY(-2px);
-        filter: brightness(0.98);
-      }
-      .use-loc-btn:disabled {
-        opacity: 0.7;
-        transform: none;
-        cursor: wait;
-      }
-
-      /* keyboard and reduced-motion support */
-      :focus:not(:focus-visible) {
-        outline: none;
-      }
-      @media (prefers-reduced-motion: reduce) {
-        .btn,
-        .use-loc-btn {
-          transition: none !important;
-        }
-      }
-
-      /* preview / metrics */
       .preview h3 {
         font-size: 20px;
         font-weight: 700;
-        letter-spacing: 0.02em;
-        margin: 0 0 6px 0;
+        margin: 0 0 6px;
       }
+
       .preview .badge {
         padding: 6px 10px;
         border-radius: 999px;
         font-weight: 700;
         font-size: 13px;
       }
+
+      .severity-low {
+        background: rgba(59, 130, 246, 0.12);
+        color: var(--primary-solid);
+      }
+
+      .severity-medium {
+        background: rgba(249, 168, 37, 0.14);
+        color: #b45309;
+      }
+
+      .severity-high {
+        background: rgba(248, 113, 113, 0.14);
+        color: #b91c1c;
+      }
+
+      .severity-critical {
+        background: rgba(244, 63, 94, 0.16);
+        color: #be123c;
+      }
+
       .stat-grid {
         display: flex;
         gap: 16px;
         margin-top: 18px;
       }
+
       .stat {
         flex: 1;
         padding: 16px;
-        background: linear-gradient(180deg, rgba(2, 6, 23, 0.02), transparent);
         border-radius: 10px;
         text-align: center;
         border: 1px solid rgba(15, 23, 42, 0.03);
+        background: linear-gradient(180deg, rgba(2, 6, 23, 0.02), transparent);
       }
+
       .stat h3 {
         margin: 0;
         font-size: 20px;
         color: var(--text);
         font-weight: 800;
       }
-      .stat p {
-        margin: 6px 0 0 0;
-        color: var(--muted);
-        font-size: 13px;
-      }
 
-      /* form helper sizes */
       #desc-count {
         font-size: 13px;
         color: var(--muted);
         margin-top: 8px;
-        display: block;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        color: var(--text);
-        margin-top: 12px;
-        font-size: 14px;
-      }
-      th,
-      td {
-        padding: 12px;
-        border-bottom: 1px solid rgba(15, 23, 42, 0.04);
-      }
-      th {
-        color: var(--muted);
-        font-size: 12px;
-        text-transform: uppercase;
       }
 
       input:focus,
@@ -439,57 +278,68 @@
         box-shadow: 0 10px 36px rgba(37, 99, 235, 0.06);
         border-color: rgba(37, 99, 235, 0.4);
       }
+
+      :focus:not(:focus-visible) {
+        outline: none;
+      }
+
+      @media (max-width: 1040px) {
+        .layout {
+          grid-template-columns: 1fr;
+          gap: 18px;
+        }
+
+        .preview {
+          max-width: none;
+          margin-left: 0;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .top-nav {
+          gap: 12px;
+          padding: 12px 16px;
+          margin-bottom: 20px;
+        }
+
+        .nav-title .sub {
+          display: none;
+        }
+
+        .row {
+          flex-direction: column;
+        }
+      }
+
       :root[data-theme="dark"] {
         --bg: linear-gradient(180deg, #0e141f 0%, #111827 100%);
-        --panel: #111827;
         --surface: rgba(17, 24, 39, 0.85);
         --nav-bg: rgba(15, 23, 42, 0.78);
-        --card-border: rgba(148, 163, 184, 0.18);
+        --text: #f8fafc;
         --muted: rgba(203, 213, 225, 0.75);
         --muted-strong: rgba(203, 213, 225, 0.72);
         --label-color: rgba(226, 232, 240, 0.9);
-        --text: #f8fafc;
-        --primary: #38bdf8;
-        --accent: #6366f1;
         --primary-solid: #3b82f6;
-        --danger: #f87171;
-        --success: #34d399;
+        --card-border: rgba(148, 163, 184, 0.18);
         --shadow-nav: 0 18px 38px rgba(2, 6, 23, 0.55);
         --shadow-card: 0 32px 70px rgba(0, 0, 0, 0.45);
         --glass: rgba(148, 163, 184, 0.08);
       }
-      :root[data-theme="dark"] .nav-btn {
-        color: var(--text);
-        border-color: rgba(148, 163, 184, 0.2);
-      }
-      :root[data-theme="dark"] .btn {
-        color: var(--text);
-        border-color: rgba(148, 163, 184, 0.2);
-      }
-      :root[data-theme="dark"] .card {
-        border-color: rgba(148, 163, 184, 0.18);
-      }
+
       :root[data-theme="dark"] input[type="text"],
       :root[data-theme="dark"] input[type="email"],
       :root[data-theme="dark"] textarea,
       :root[data-theme="dark"] select {
         background: rgba(15, 23, 42, 0.55);
         border-color: rgba(148, 163, 184, 0.24);
-        color: var(--text);
       }
+
       :root[data-theme="dark"] .stat {
         background: rgba(17, 24, 39, 0.6);
         border-color: rgba(148, 163, 184, 0.12);
       }
-      :root[data-theme="dark"] table,
-      :root[data-theme="dark"] th,
-      :root[data-theme="dark"] td {
-        color: var(--text);
-        border-color: rgba(148, 163, 184, 0.14);
-      }
     </style>
 
-    <!-- lightweight chart (optional): Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
@@ -573,7 +423,6 @@
                   />
                 </div>
               </div>
-              <!-- keep status hidden so dashboard logic (open/closed) still works -->
               <input type="hidden" id="status" name="status" value="open" />
             </div>
 
@@ -687,9 +536,9 @@
             </div>
 
             <div>
-              <label for="description"
-                >Description <span class="small">(min 10 chars)</span></label
-              >
+              <label for="description">
+                Description <span class="small">(min 10 chars)</span>
+              </label>
               <textarea
                 id="description"
                 name="description"
@@ -699,13 +548,16 @@
               <div class="helper small" id="desc-count">0 characters</div>
             </div>
 
-            <div class="actions">
+            <div
+              class="actions"
+              style="display: flex; gap: 12px; margin-top: 6px"
+            >
               <button type="button" id="cancel" class="btn">Cancel</button>
               <button type="submit" class="btn primary">Submit Incident</button>
             </div>
           </form>
 
-          <footer class="note small">
+          <footer class="note small" style="margin-top: 12px">
             Reports are stored locally for this demo. Integrate with a backend
             to persist across devices.
           </footer>
@@ -807,19 +659,14 @@
         );
       });
 
-      // small helpers & data keys
       const INCIDENTS_KEY = "cier_incidents";
       const USER_KEY = "currentUser";
       const NOMINATIM_ENDPOINT = "https://nominatim.openstreetmap.org/reverse";
-
-      // Backend endpoint for creating incidents (update to your real API URL)
       const API_INCIDENTS = "http://localhost:3800/incidents/";
 
-      // DOM refs for incident-type other field
       const incidentTypeSelect = document.getElementById("incident-type");
       const incidentTypeOther = document.getElementById("incident-type-other");
 
-      // show/hide "other" input when selection is Other/More
       function toggleIncidentOther() {
         const v = incidentTypeSelect.value;
         if (v === "other" || v === "more") {
@@ -837,7 +684,7 @@
       function loadIncidents() {
         try {
           return JSON.parse(localStorage.getItem(INCIDENTS_KEY) || "[]");
-        } catch (e) {
+        } catch {
           return [];
         }
       }
@@ -845,7 +692,6 @@
         localStorage.setItem(INCIDENTS_KEY, JSON.stringify(list));
       }
 
-      // Location helpers: get device location and optional reverse geocode
       async function reverseGeocode(lat, lon) {
         try {
           const url = `${NOMINATIM_ENDPOINT}?format=jsonv2&lat=${encodeURIComponent(
@@ -857,7 +703,7 @@
           if (!res.ok) return null;
           const data = await res.json();
           return data.display_name || null;
-        } catch (err) {
+        } catch {
           return null;
         }
       }
@@ -886,7 +732,6 @@
                 5
               )} — looking up address...`
             );
-            // try reverse geocoding
             const human = await reverseGeocode(lat, lon);
             const locInput = document.getElementById("location");
             if (human) {
@@ -896,7 +741,6 @@
               locInput.value = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
               setLocStatus("Coordinates inserted (no address found).");
             }
-            // update preview
             updatePreview();
             btn.disabled = false;
           },
@@ -917,7 +761,6 @@
         );
       });
 
-      // DOM
       const form = document.getElementById("report-form");
       const cancelBtn = document.getElementById("cancel");
       const desc = document.getElementById("description");
@@ -928,12 +771,10 @@
       const pvReporter = document.getElementById("pv-reporter");
       const pvTime = document.getElementById("pv-time");
       const pvDesc = document.getElementById("pv-desc");
-
       const statTotal = document.getElementById("stat-total");
       const statOpen = document.getElementById("stat-open");
       const statClosed = document.getElementById("stat-closed");
 
-      // prefill reporter if signed in
       const currentUser = localStorage.getItem(USER_KEY)
         ? JSON.parse(localStorage.getItem(USER_KEY))
         : null;
@@ -942,7 +783,6 @@
         if (rep && !rep.value) rep.value = currentUser.email;
       }
 
-      // severity chart
       let chart;
       function setupChart() {
         const ctx = document.getElementById("severityChart").getContext("2d");
@@ -984,7 +824,6 @@
         return counts;
       }
 
-      // preview updates
       function updatePreview() {
         const title =
           document.getElementById("title").value.trim() || "Untitled Incident";
@@ -1005,7 +844,6 @@
         const severity = document.getElementById("severity").value || "low";
 
         pvTitle.textContent = title;
-        // reuse pv-status element to show the incident type
         pvStatus.textContent = type.replace(/_/g, " ");
         pvStatus.className = "badge " + severityClass(severity);
         pvLocation.textContent = "Location: " + location;
@@ -1025,15 +863,12 @@
         return "severity-low";
       }
 
-      // live listeners
       ["title", "location", "reporter", "severity"].forEach((id) => {
         document.getElementById(id).addEventListener("input", updatePreview);
         document.getElementById(id).addEventListener("change", updatePreview);
       });
-      // incident-type handled above (change listener) and incident-type-other has input listener
       desc.addEventListener("input", updatePreview);
 
-      // form submit: try backend, fall back to localStorage; always update local log for immediate visibility
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const title = document.getElementById("title").value.trim();
@@ -1047,7 +882,6 @@
         }
 
         const prepared = {
-          // temporary client id — server may return real id
           id: "i_" + Date.now(),
           title,
           description,
@@ -1068,14 +902,12 @@
           resolvedAt: null,
         };
 
-        // Optimistically save locally so the incident log updates immediately
         const localList = loadIncidents();
         localList.unshift(prepared);
         saveIncidents(localList);
         refreshStats();
         updateChart();
 
-        // Attempt to send to backend; on success replace local item with server response
         try {
           const token = localStorage.getItem("token");
           const res = await fetch(API_INCIDENTS, {
@@ -1119,7 +951,7 @@
             window.location.href = "./dashboard.html";
             return;
           } else {
-            console.error("Server responded with error:", res.status, body);
+            console.error("Server error:", res.status, body);
             alert(
               `Saved locally but server returned error ${res.status}: ${
                 body && body.error ? body.error : JSON.stringify(body)
@@ -1129,15 +961,11 @@
             return;
           }
         } catch (err) {
-          console.warn(
-            "Network error when sending incident, saved locally.",
-            err
-          );
+          console.warn("Network error — saved locally.", err);
           alert(
             "No network — incident saved locally. It will appear in your incident log."
           );
           window.location.href = "./dashboard.html";
-          return;
         }
       });
 
@@ -1145,7 +973,6 @@
         window.location.href = "./dashboard.html";
       });
 
-      // stats
       function refreshStats() {
         const list = loadIncidents();
         statTotal.textContent = list.length;
@@ -1155,17 +982,13 @@
         ).length;
       }
 
-      // logout btn
       document.getElementById("logout").addEventListener("click", () => {
         localStorage.removeItem("token");
-        // optionally clear current user:
-        // localStorage.removeItem(USER_KEY);
         window.location.href = "./login.html";
       });
 
-      // init
       (function init() {
-        toggleIncidentOther(); // ensure visibility state matches select value
+        toggleIncidentOther();
         updatePreview();
         refreshStats();
         setupChart();
