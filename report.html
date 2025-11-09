@@ -6,295 +6,51 @@
     <title>Report Incident — CIER</title>
 
     <style>
-      :root {
-        --bg: #071129;
-        --card: #0b1220;
-        --muted: #9aa4b2;
-        --accent: #6366f1;
-        --success: #10b981;
-        --danger: #ef4444;
-        --glass: rgba(255, 255, 255, 0.03);
+      /* CLEAN LIGHT THEME */
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+      :root{
+        --bg:#f4f7fa;
+        --panel:#ffffff;
+        --muted:#6b7280;
+        --primary:#2563eb;
+        --accent:#06b6d4;
+        --danger:#ef4444;
+        --success:#10b981;
+        --card-border: rgba(15,23,42,0.04);
+        --radius:12px;
       }
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-          Roboto, "Helvetica Neue", Arial;
-        background: linear-gradient(180deg, #071129 0%, #071b2b 100%);
-        color: #e6eef8;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-      }
-
-      .container {
-        max-width: 1100px;
-        margin: 28px auto;
-        padding: 20px;
-      }
-
-      header.app-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        margin-bottom: 18px;
-      }
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-      .logo {
-        width: 46px;
-        height: 46px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        color: #fff;
-        background: linear-gradient(135deg, var(--accent), #48b5ff);
-      }
-      .title {
-        line-height: 1;
-      }
-      .title h1 {
-        margin: 0;
-        font-size: 18px;
-      }
-      .title p {
-        margin: 0;
-        color: var(--muted);
-        font-size: 13px;
-      }
-
-      .card {
-        background: linear-gradient(
-          180deg,
-          rgba(255, 255, 255, 0.02),
-          rgba(255, 255, 255, 0.01)
-        );
-        border: 1px solid rgba(255, 255, 255, 0.03);
-        padding: 18px;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(2, 6, 23, 0.6);
-      }
-
-      .layout {
-        display: grid;
-        grid-template-columns: 1fr 360px;
-        gap: 18px;
-        align-items: start;
-      }
-      @media (max-width: 980px) {
-        .layout {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      form {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-      label {
-        font-size: 13px;
-        color: var(--muted);
-        margin-bottom: 6px;
-        display: block;
-      }
-      input[type="text"],
-      input[type="email"],
-      textarea,
-      select {
-        width: 100%;
-        padding: 10px 12px;
-        border-radius: 10px;
-        background: transparent;
-        color: #e6eef8;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        outline: none;
-      }
-      /* Ensure select control and its dropdown options are readable */
-      select {
-        color: #e6eef8;
-        background: linear-gradient(
-          180deg,
-          rgba(255, 255, 255, 0.01),
-          rgba(255, 255, 255, 0)
-        );
-        padding-right: 36px; /* room for custom arrow */
-        -webkit-appearance: none;
-        appearance: none;
-        position: relative;
-      }
-      /* Native option color/background (best effort across browsers) */
-      select option {
-        color: #0b1220; /* option text on dropdown menu */
-        background: #e6eef8; /* make options readable when opened */
-      }
-      /* Custom dropdown arrow using background gradients so it is visible */
-      select {
-        background-image: linear-gradient(45deg, transparent 50%, #e6eef8 50%),
-          linear-gradient(135deg, #e6eef8 50%, transparent 50%),
-          linear-gradient(
-            180deg,
-            rgba(255, 255, 255, 0.01),
-            rgba(255, 255, 255, 0)
-          );
-        background-position: calc(100% - 18px) calc(1em + 2px),
-          calc(100% - 13px) calc(1em + 2px), 0 0;
-        background-size: 6px 6px, 6px 6px, 100% 100%;
-        background-repeat: no-repeat;
-      }
-      /* Ensure the "Other" input text is visible */
-      #incident-type-other {
-        color: #e6eef8 !important;
-        background: transparent !important;
-        border: 1px solid rgba(255, 255, 255, 0.06) !important;
-      }
-      textarea {
-        min-height: 120px;
-        resize: vertical;
-      }
-
-      .row {
-        display: flex;
-        gap: 12px;
-      }
-      .col {
-        flex: 1;
-      }
-      .small {
-        font-size: 13px;
-        color: var(--muted);
-      }
-
-      .actions {
-        display: flex;
-        gap: 12px;
-        justify-content: flex-end;
-        margin-top: 6px;
-      }
-      .btn {
-        padding: 10px 14px;
-        border-radius: 10px;
-        cursor: pointer;
-        border: 1px solid rgba(255, 255, 255, 0.04);
-        background: var(--card);
-        color: var(--muted);
-      }
-      .btn.primary {
-        background: linear-gradient(90deg, var(--accent), #48b5ff);
-        color: #fff;
-        border: none;
-      }
-
-      /* preview */
-      .preview {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-      .preview .meta {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-      }
-      .badge {
-        padding: 6px 8px;
-        border-radius: 999px;
-        font-weight: 600;
-        font-size: 13px;
-      }
-      .severity-low {
-        background: rgba(16, 185, 129, 0.08);
-        color: var(--success);
-      }
-      .severity-medium {
-        background: rgba(255, 193, 7, 0.08);
-        color: #f59e0b;
-      }
-      .severity-high {
-        background: rgba(239, 68, 68, 0.08);
-        color: var(--danger);
-      }
-      .severity-critical {
-        background: rgba(240, 68, 140, 0.08);
-        color: #db2777;
-      }
-
-      .stat-grid {
-        display: flex;
-        gap: 10px;
-      }
-      .stat {
-        flex: 1;
-        padding: 10px;
-        background: var(--glass);
-        border-radius: 8px;
-        text-align: center;
-      }
-      .stat h3 {
-        margin: 0;
-        font-size: 18px;
-      }
-      .stat p {
-        margin: 4px 0 0 0;
-        color: var(--muted);
-        font-size: 12px;
-      }
-
-      .helper {
-        font-size: 12px;
-        color: var(--muted);
-        margin-top: 6px;
-      }
-
-      footer.note {
-        margin-top: 14px;
-        font-size: 13px;
-        color: var(--muted);
-      }
-
-      /* tiny responsive tweaks */
-      @media (max-width: 640px) {
-        .brand h1 {
-          font-size: 16px;
-        }
-        .title p {
-          display: none;
-        }
-        .actions {
-          flex-direction: column-reverse;
-        }
-      }
-
-      /* Use-location button (more mature look) */
-      .use-loc-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: linear-gradient(90deg, var(--accent), #48b5ff);
-        color: #fff;
-        border: none;
-        padding: 8px 10px;
-        border-radius: 10px;
-        box-shadow: 0 6px 18px rgba(99, 102, 241, 0.14);
-        cursor: pointer;
-        font-weight: 600;
-      }
-      .use-loc-btn:disabled {
-        opacity: 0.7;
-        cursor: wait;
-      }
-      .use-loc-btn svg {
-        width: 16px;
-        height: 16px;
-        display: block;
-      }
+      *{box-sizing:border-box}
+      html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:#0f172a;-webkit-font-smoothing:antialiased}
+      .container{max-width:980px;margin:30px auto;padding:20px}
+      header.app-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+      .logo{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+      h1{margin:0;font-size:18px;color:#0f172a}
+      .subtitle{color:var(--muted);font-size:13px}
+      .card{background:var(--panel);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px;box-shadow:0 6px 22px rgba(2,6,23,0.06)}
+      .layout{display:grid;grid-template-columns:1fr 340px;gap:18px}
+      @media(max-width:980px){ .layout{grid-template-columns:1fr} }
+      label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+      input[type="text"],input[type="email"],textarea,select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);background:transparent;color:#0f172a}
+      textarea{min-height:120px;resize:vertical}
+      .row{display:flex;gap:12px}
+      .col{flex:1}
+      .small{font-size:13px;color:var(--muted)}
+      .use-loc-btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;border:none;padding:8px 10px;border-radius:8px;cursor:pointer}
+      .actions{display:flex;gap:12px;justify-content:flex-end;margin-top:10px}
+      .btn{padding:10px 14px;border-radius:10px;border:1px solid rgba(15,23,42,0.04);background:transparent;color:var(--muted);cursor:pointer}
+      .btn.primary{background:var(--primary);color:#fff;border:none;box-shadow:0 8px 24px rgba(37,99,235,0.12)}
+      .preview .badge{padding:6px 8px;border-radius:999px;font-weight:700;font-size:13px}
+      .severity-low{background:rgba(16,185,129,0.08);color:var(--success)}
+      .severity-medium{background:rgba(99,102,241,0.06);color:var(--primary)}
+      .severity-high{background:rgba(249,115,22,0.08);color:#f97316}
+      .severity-critical{background:rgba(239,68,68,0.08);color:var(--danger)}
+      .stat-grid{display:flex;gap:10px;margin-top:10px}
+      .stat{flex:1;padding:12px;background:linear-gradient(180deg,rgba(2,6,23,0.02),transparent);border-radius:8px;text-align:center;border:1px solid rgba(15,23,42,0.03)}
+      .stat h3{margin:0;font-size:18px;color:#0f172a}
+      .stat p{margin:6px 0 0 0;color:var(--muted);font-size:12px}
+      .helper{font-size:12px;color:var(--muted);margin-top:6px}
+      footer.note{margin-top:14px;font-size:13px;color:var(--muted)}
+      input:focus,textarea:focus,select:focus{outline:none;box-shadow:0 8px 30px rgba(37,99,235,0.06);border-color:rgba(37,99,235,0.4)}
     </style>
 
     <!-- lightweight chart (optional): Chart.js CDN -->
