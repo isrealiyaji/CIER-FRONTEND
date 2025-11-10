@@ -66,18 +66,15 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 64px 24px;
+        padding: 44px 24px;
         position: relative;
         z-index: 1;
       }
       .theme-toggle {
-        position: absolute;
-        top: 32px;
-        right: 32px;
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 12px 18px;
+        padding: 11px 18px;
         border-radius: 14px;
         border: 1px solid rgba(15, 23, 42, 0.08);
         background: rgba(255, 255, 255, 0.88);
@@ -87,6 +84,9 @@
         color: var(--text);
         box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
         transition: transform 0.06s ease, box-shadow 0.12s ease;
+        position: absolute;
+        top: -28px;
+        right: 0;
       }
       .theme-toggle:hover {
         transform: translateY(-2px);
@@ -170,22 +170,30 @@
         padding: 0 8px;
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start;
+        gap: 0;
       }
       .form-header {
-        margin-bottom: 20px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        position: relative;
+      }
+      .form-header-text {
         display: flex;
         flex-direction: column;
         gap: 8px;
       }
-      .form-header span {
+      .form-header-text span {
         font-size: 14px;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.18em;
         color: rgba(37, 99, 235, 0.75);
       }
-      .form-header h2 {
+      .form-header-text h2 {
         margin: 0;
         font-size: 32px;
         font-weight: 700;
@@ -287,11 +295,6 @@
           grid-template-columns: 1fr;
           padding: 36px 28px;
         }
-        .theme-toggle {
-          top: 20px;
-          right: 20px;
-          padding: 11px 16px;
-        }
         .intro {
           order: -1;
           text-align: center;
@@ -310,6 +313,17 @@
         }
         .pill {
           justify-content: center;
+        }
+        .form-header {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 18px;
+          position: static;
+        }
+        .theme-toggle {
+          position: static;
+          justify-content: center;
+          width: 100%;
         }
       }
       :root[data-theme="dark"] {
@@ -379,9 +393,6 @@
   </head>
   <body>
     <div class="shell">
-      <button type="button" id="theme-toggle" class="theme-toggle">
-        🌙 Dark
-      </button>
       <div class="card">
         <aside class="intro">
           <div class="logo">CI</div>
@@ -409,8 +420,13 @@
 
         <section>
           <div class="form-header">
-            <span>Access console</span>
-            <h2>Sign in to CIER</h2>
+            <div class="form-header-text">
+              <span>Access console</span>
+              <h2>Sign in to CIER</h2>
+            </div>
+            <button type="button" id="theme-toggle" class="theme-toggle">
+              🌙 Dark
+            </button>
           </div>
           <form id="login-form" method="POST">
             <div>
