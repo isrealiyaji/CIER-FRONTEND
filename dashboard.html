@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>CIER Dashboard</title>
-
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap"
       rel="stylesheet"
@@ -12,152 +11,197 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-      /* CLEAN LIGHT THEME (match report.html) */
       :root {
         --bg: #f4f7fa;
-        --panel: #ffffff;
+        --surface: rgba(255, 255, 255, 0.82);
+        --nav-bg: rgba(255, 255, 255, 0.88);
+        --text: #0f172a;
         --muted: #6b7280;
-        --primary: #2563eb;
-        --accent: #06b6d4;
+        --muted-strong: rgba(15, 23, 42, 0.58);
+        --primary-solid: #1d4ed8;
         --danger: #ef4444;
         --success: #10b981;
+        --radius: 14px;
         --card-border: rgba(15, 23, 42, 0.04);
-        --radius: 12px;
+        --shadow-nav: 0 16px 36px rgba(15, 23, 42, 0.18);
+        --shadow-card: 0 24px 50px rgba(15, 23, 42, 0.12);
+        --base-font: 16px;
       }
       * {
         box-sizing: border-box;
       }
       html,
       body {
-        height: 100%;
         margin: 0;
+        min-height: 100%;
         font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+        font-size: var(--base-font);
+        line-height: 1.6;
+        letter-spacing: 0.015em;
         background: var(--bg);
-        color: #0f172a;
+        color: var(--text);
         -webkit-font-smoothing: antialiased;
       }
       .container {
         max-width: 1320px;
-        margin: 20px auto;
-        padding: 22px;
+        margin: 24px auto;
+        padding: 28px 26px;
       }
-      /* sticky top navigation */
-      .top-nav{
+
+      .top-nav {
         position: sticky;
         top: 0;
         z-index: 50;
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        gap:12px;
-        padding:12px 18px;
-        margin:-22px -22px 18px -22px; /* extend to container edges */
-        border-radius:12px;
-        background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.86));
-        box-shadow: 0 8px 30px rgba(2,6,23,0.06);
-        backdrop-filter: blur(6px);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 26px;
+        padding: 14px 22px;
+        border-radius: 12px;
+        background: var(--nav-bg);
+        backdrop-filter: blur(14px);
+        box-shadow: var(--shadow-nav);
       }
-      @media (prefers-reduced-transparency: reduce){
-        .top-nav{ backdrop-filter: none; background: #ffffff; }
+      .nav-left,
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
       }
-      /* small adjustments so sticky nav doesn't overlap content on small screens */
-      @media (max-width:480px){
-        .top-nav{ padding:10px 12px; margin:-20px -20px 14px -20px; }
-      }
-
-      header {
-        display: none;
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: inherit;
       }
       .logo {
-        width: 64px;
-        height: 64px;
+        width: 56px;
+        height: 56px;
         border-radius: 12px;
-        background: linear-gradient(135deg, var(--primary), var(--accent));
+        background: var(--primary-solid);
         display: flex;
         align-items: center;
         justify-content: center;
         color: #fff;
         font-weight: 800;
+        font-size: 18px;
       }
-      h1 {
-        margin: 0;
-        font-size: 20px;
+      .nav-title {
+        display: flex;
+        flex-direction: column;
+        line-height: 1;
       }
-      .small {
+      .nav-title .main {
+        font-weight: 700;
+        font-size: 16px;
+      }
+      .nav-title .sub {
         color: var(--muted);
         font-size: 13px;
+        margin-top: 2px;
+      }
+      .nav-btn,
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 18px;
+        border-radius: 10px;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        background: transparent;
+        color: var(--text);
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.06s ease, box-shadow 0.12s ease;
+      }
+      .nav-btn:hover,
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(2, 6, 23, 0.1);
+      }
+      .btn.primary,
+      .nav-btn.primary {
+        background: var(--primary-solid);
+        color: #fff;
+        border: none;
+        box-shadow: 0 16px 40px rgba(29, 78, 216, 0.18);
       }
 
       .kpi-grid {
         display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 18px;
+        grid-template-columns: minmax(0, 2.1fr) minmax(320px, 1fr);
+        gap: 24px;
         align-items: start;
       }
-      @media (max-width: 980px) {
-        .kpi-grid {
-          grid-template-columns: 1fr;
-        }
-      }
-
       .card {
-        background: var(--panel);
+        background: var(--surface);
         border: 1px solid var(--card-border);
-        padding: 18px;
         border-radius: var(--radius);
-        box-shadow: 0 10px 30px rgba(2, 6, 23, 0.06);
+        padding: 22px;
+        box-shadow: var(--shadow-card);
+        backdrop-filter: blur(18px);
       }
       .main-card {
-        min-height: 420px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 280px;
+        gap: 18px;
       }
       .main-chart {
-        min-height: 360px;
-        padding: 12px;
+        min-height: 320px;
+      }
+      .metric-card {
+        background: rgba(15, 23, 42, 0.03);
         border-radius: 12px;
-        background: transparent;
-      }
-      .metric-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-      }
-
-      .kpi {
         padding: 16px;
-        border-radius: 12px;
-        border: 1px solid rgba(15, 23, 42, 0.03);
-        background: linear-gradient(180deg, rgba(2, 6, 23, 0.02), transparent);
+        border: 1px solid rgba(15, 23, 42, 0.05);
       }
-      .kpi .label {
-        font-size: 13px;
+      .metric-card .label {
+        font-size: 14px;
         color: var(--muted);
-        margin-bottom: 8px;
-        font-weight: 700;
+        font-weight: 600;
       }
-      .kpi .value {
-        font-size: 34px;
+      .metric-card .value {
+        font-size: 32px;
         font-weight: 800;
-        color: var(--primary);
+        margin-top: 6px;
+        color: var(--text);
       }
 
-      .small-charts {
+      .metrics {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-        margin-top: 12px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+      .small-charts {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        width: 100%;
+        grid-column: 1 / -1;
+      }
+      .chart-small-card {
+        background: rgba(15, 23, 42, 0.03);
+        border-radius: 12px;
+        padding: 16px;
+        border: 1px solid rgba(15, 23, 42, 0.05);
+        width: 100%;
       }
 
+      .incident-log {
+        margin-top: 32px;
+      }
       table {
         width: 100%;
         border-collapse: collapse;
-        color: #0f172a;
-        margin-top: 12px;
+        color: var(--text);
+        font-size: 14px;
       }
       th,
       td {
-        padding: 10px;
-        border-bottom: 1px solid rgba(15, 23, 42, 0.04);
-        font-size: 13px;
+        padding: 12px;
+        border-bottom: 1px solid rgba(15, 23, 42, 0.05);
       }
       th {
         color: var(--muted);
@@ -165,171 +209,151 @@
         text-transform: uppercase;
       }
       tr:hover {
-        background: rgba(37, 99, 235, 0.03);
-        cursor: pointer;
+        background: rgba(37, 99, 235, 0.06);
       }
-
       .status {
-        padding: 6px 8px;
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
         border-radius: 999px;
         font-weight: 700;
         font-size: 13px;
       }
-      .open {
-        background: rgba(37, 99, 235, 0.08);
-        color: var(--primary);
+      .status.open {
+        background: rgba(59, 130, 246, 0.12);
+        color: var(--primary-solid);
       }
-      .closed {
-        background: rgba(255, 100, 100, 0.07);
+      .status.closed {
+        background: rgba(248, 113, 113, 0.12);
         color: var(--danger);
       }
 
-      .controls {
-        display: flex;
-        gap: 8px;
-        align-items: center;
+      @media (max-width: 1100px) {
+        .main-card {
+          grid-template-columns: 1fr;
+        }
       }
-      .btn {
-        background: transparent;
-        color: var(--muted);
-        padding: 8px 12px;
-        border-radius: 8px;
-        border: 1px solid rgba(15, 23, 42, 0.04);
-        cursor: pointer;
+      @media (max-width: 860px) {
+        .kpi-grid {
+          grid-template-columns: 1fr;
+        }
       }
-      .btn.primary {
-        background: linear-gradient(90deg, var(--accent), var(--primary));
-        color: #012;
-        border: none;
-        padding: 10px 14px;
+      @media (max-width: 720px) {
+        .top-nav {
+          gap: 12px;
+          padding: 12px 16px;
+        }
+        .nav-title .sub {
+          display: none;
+        }
+        .metrics {
+          grid-template-columns: 1fr;
+        }
+        .small-charts {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      :root[data-theme="dark"] {
+        --bg: linear-gradient(180deg, #0e141f 0%, #111827 100%);
+        --surface: rgba(17, 24, 39, 0.85);
+        --nav-bg: rgba(15, 23, 42, 0.78);
+        --text: #f8fafc;
+        --muted: rgba(203, 213, 225, 0.75);
+        --muted-strong: rgba(203, 213, 225, 0.72);
+        --primary-solid: #3b82f6;
+        --card-border: rgba(148, 163, 184, 0.18);
+        --shadow-nav: 0 18px 38px rgba(2, 6, 23, 0.55);
+        --shadow-card: 0 32px 70px rgba(0, 0, 0, 0.45);
+      }
+      :root[data-theme="dark"] .metric-card,
+      :root[data-theme="dark"] .chart-small-card {
+        background: rgba(17, 24, 39, 0.6);
+        border-color: rgba(148, 163, 184, 0.12);
       }
     </style>
   </head>
   <body>
-        <div class="container">
+    <div class="container">
       <nav class="top-nav" role="navigation" aria-label="Main navigation">
-        <div style="display:flex;align-items:center;gap:12px">
-          <a href="./dashboard.html" class="btn" style="text-decoration:none">← Back</a>
-          <div style="display:flex;align-items:center;gap:12px">
-            <div class="logo" aria-hidden="true">CI</div>
-            <div>
-              <h1 style="margin:0;font-size:18px">CIER — Incidents Dashboard</h1>
-              <div class="small" style="line-height:1">Real time incident management & KPIs</div>
+        <div class="nav-left">
+          <a href="./dashboard.html" class="nav-brand">
+            <div class="logo">CI</div>
+            <div class="nav-title">
+              <span class="main">CIER</span>
+              <span class="sub">Incidents Dashboard</span>
             </div>
-          </div>
+          </a>
         </div>
 
-        <div style="display:flex;align-items:center;gap:10px">
-          <div id="current-user" class="small" style="margin-right:8px">Signed in</div>
-          <button id="refresh-server" class="btn" title="Refresh">Refresh</button>
-          <a id="open-report-btn" class="btn primary" href="./report.html" title="Report Incident">Report Incident</a>
-          <button id="logout-button" class="btn" title="Logout">Logout</button>
+        <div class="nav-right">
+          <a href="./report.html" class="nav-btn">Report Incident</a>
+          <button id="refresh-server" class="nav-btn">Refresh</button>
+          <button id="logout-button" class="nav-btn">Logout</button>
         </div>
       </nav>
 
       <section class="kpi-grid">
-        <!-- LEFT: large chart area -->
-        <div class="main-card">
-          <div class="title">
-            <h2>Incidents Over Time</h2>
-            <div class="small">Last 30 days</div>
-          </div>
-
-          <div class="main-chart-wrap">
+        <div class="card main-card">
+          <div>
+            <h2 style="margin: 0 0 6px">Incidents Over Time</h2>
+            <div class="small" style="color: var(--muted)">Last 30 days</div>
             <div class="main-chart">
               <canvas id="lineChart" aria-label="Incidents over time"></canvas>
             </div>
-
-            <!-- compact right column inside main card for summary boxes -->
-            <div
-              style="
-                width: 300px;
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-              "
-            >
-              <div class="metric-card" style="min-height: 72px">
-                <div class="label">Total incidents</div>
-                <div id="card-total" class="value">0</div>
-                <div class="small" style="margin-top: 6px; color: var(--muted)">
-                  Since launch
-                </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 14px">
+            <div class="metric-card">
+              <div class="label">Total incidents</div>
+              <div id="card-total" class="value">0</div>
+              <div class="small" style="color: var(--muted)">Since launch</div>
+            </div>
+            <div class="metric-card">
+              <div class="label">Open incidents</div>
+              <div id="card-open" class="value">0</div>
+              <div class="small" style="color: var(--muted)">
+                Awaiting response
               </div>
-
-              <div class="metric-card" style="min-height: 72px">
-                <div class="label">Open incidents</div>
-                <div id="card-open" class="value">0</div>
-                <div class="small" style="margin-top: 6px; color: var(--muted)">
-                  Awaiting response
-                </div>
-              </div>
-
-              <div class="metric-card" style="min-height: 72px">
-                <div class="label">Avg. resolution (days)</div>
-                <div id="card-avg-time" class="value">—</div>
-                <div class="small" style="margin-top: 6px; color: var(--muted)">
-                  Median time to close
-                </div>
+            </div>
+            <div class="metric-card">
+              <div class="label">Avg. resolution (days)</div>
+              <div id="card-avg-time" class="value">—</div>
+              <div class="small" style="color: var(--muted)">
+                Median time to close
               </div>
             </div>
           </div>
         </div>
 
-        <!-- RIGHT: metrics and small charts -->
-        <div>
+        <div class="card">
           <div class="metrics">
             <div class="metric-card">
               <div class="label">Resolved</div>
               <div id="card-resolved" class="value">0</div>
-              <div class="small">Total resolved incidents</div>
             </div>
-
             <div class="metric-card">
-              <div class="label">In Progress</div>
+              <div class="label">In progress</div>
               <div id="card-inprogress" class="value">0</div>
-              <div class="small">Being handled by responders</div>
             </div>
-
             <div class="metric-card">
               <div class="label">High severity</div>
               <div id="card-high" class="value">0</div>
-              <div class="small">Marked critical</div>
             </div>
-
             <div class="metric-card">
               <div class="label">Unique reporters</div>
               <div id="card-reporters" class="value">0</div>
-              <div class="small">Distinct users</div>
             </div>
 
-            <!-- two full-width small charts -->
-            <div class="small-charts" style="grid-column: 1/3; margin-top: 6px">
+            <div class="small-charts">
               <div class="chart-small-card">
-                <div
-                  style="
-                    font-size: 13px;
-                    color: var(--muted);
-                    margin-bottom: 8px;
-                  "
-                >
-                  By severity
-                </div>
+                <div class="label" style="font-size: 13px">By severity</div>
                 <canvas
                   id="pieChart"
                   aria-label="Incidents by severity"
                 ></canvas>
               </div>
               <div class="chart-small-card">
-                <div
-                  style="
-                    font-size: 13px;
-                    color: var(--muted);
-                    margin-bottom: 8px;
-                  "
-                >
-                  Top types
-                </div>
+                <div class="label" style="font-size: 13px">Top types</div>
                 <canvas id="barChart" aria-label="Top incident types"></canvas>
               </div>
             </div>
@@ -337,9 +361,8 @@
         </div>
       </section>
 
-      <!-- Incident log below KPI area -->
-      <section class="incident-log">
-        <h3>Incident Log</h3>
+      <section class="card incident-log">
+        <h3 style="margin-top: 0">Incident Log</h3>
         <div class="small" style="margin-bottom: 8px">
           Click a row to toggle status.
         </div>
@@ -361,16 +384,7 @@
       </section>
     </div>
 
-    <!-- keep existing modal (unchanged) -->
-    <div
-      id="modal-overlay"
-      class="modal-overlay"
-      aria-hidden="true"
-      style="display: none"
-    >
-      <!-- modal content (omitted for brevity) -->
-    </div>
-
+    <!-- existing scripts remain below -->
     <script>
       // small helpers & storage
       const INCIDENTS_KEY = "cier_incidents";
@@ -788,4 +802,4 @@
       init();
     </script>
   </body>
-  </html>
+</html>
