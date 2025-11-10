@@ -272,10 +272,26 @@
               <option value="Disaster Relief">Disaster Relief</option>
               <option value="Road Safety">Road Safety</option>
               <option value="Utility Support">Utility Support</option>
+              <option value="more">More (custom team)</option>
             </select>
             <p class="mt-2 text-xs text-gray-500">
               Choose the emergency unit this account will represent.
             </p>
+          </div>
+          <div id="response-role-custom-wrapper" class="hidden">
+            <label
+              class="block text-sm font-medium text-gray-700"
+              for="response-role-custom"
+            >
+              Custom team name
+            </label>
+            <input
+              id="response-role-custom"
+              name="roleCustom"
+              type="text"
+              class="w-full px-4 py-2 mt-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="e.g. Marine Rescue"
+            />
           </div>
           <div>
             <label
@@ -305,40 +321,72 @@
       </div>
     </main>
     <script>
-      document
-        .getElementById("create-response-user")
-        ?.addEventListener("submit", async (event) => {
-          event.preventDefault();
-          const form = event.currentTarget;
-          const feedback = document.getElementById("response-feedback");
-          const payload = {
-            name: form.name.value.trim(),
-            email: form.email.value.trim(),
-            role: form.role.value,
-            password: form.password.value,
-          };
-          try {
-            const res = await fetch(
-              "http://localhost:3800/users/admin/create",
-              {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-              }
+            document
+              .getElementById("create-response-user")
+              ?.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                const form = event.currentTarget;
+                const feedback = document.getElementById("response-feedback");
+                const roleValue =
+                  form.role.value === "more"
+                    ? form.roleCustom.value.trim()
+                    : form.role.value;
+
+                if (!roleValue) {
+                  feedback.textContent = "Please provide a response team name.";
+                  feedback.className = "text-sm text-red-600";
+                  return;
+                }
+
+                 const payload = {
+                   name: form.name.value.trim(),
+                   email: form.email.value.trim(),
+      -            role: form.role.value,
+      +            role: roleValue,
+                   password: form.password.value,
+                 };
+                try {
+                  const res = await fetch(
+                    "http://localhost:3800/users/admin/create",
+                    {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify(payload),
+                    }
+                  );
+                  if (!res.ok) {
+                    throw new Error(
+                      (await res.json()).error || "Failed to create user"
+                    );
+                  }
+                  feedback.textContent = "Responder account created successfully.";
+                  feedback.className = "text-sm text-green-600";
+                  form.reset();
+                } catch (error) {
+                  feedback.textContent = error.message || "Unable to create account.";
+                  feedback.className = "text-sm text-red-600";
+                }
+              });
+
+            const roleSelect = document.getElementById("response-role");
+            const customWrapper = document.getElementById(
+              "response-role-custom-wrapper"
             );
-            if (!res.ok) {
-              throw new Error(
-                (await res.json()).error || "Failed to create user"
-              );
-            }
-            feedback.textContent = "Responder account created successfully.";
-            feedback.className = "text-sm text-green-600";
-            form.reset();
-          } catch (error) {
-            feedback.textContent = error.message || "Unable to create account.";
-            feedback.className = "text-sm text-red-600";
-          }
-        });
+            const customInput = document.getElementById("response-role-custom");
+
+            const toggleCustomRole = () => {
+              const useCustom = roleSelect.value === "more";
+              customWrapper.classList.toggle("hidden", !useCustom);
+              customInput.disabled = !useCustom;
+              if (!useCustom) {
+                customInput.value = "";
+              } else {
+                customInput.focus();
+              }
+            };
+
+            roleSelect?.addEventListener("change", toggleCustomRole);
+            toggleCustomRole();
     </script>
   </body>
 </html>
