@@ -1,144 +1,344 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard - CIER</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100">
+  </head>
+  <body class="bg-gray-100">
     <!-- Header -->
     <header class="bg-white shadow-md">
-        <nav class="container flex items-center justify-between p-4 mx-auto">
-            <h1 class="text-xl font-bold text-indigo-600">CIER Admin Panel</h1>
-            <div>
-                <span class="mr-4 text-gray-700">Welcome, Admin!</span>
-                <a href="/login.html" class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600">Logout</a>
-            </div>
-        </nav>
+      <nav class="container flex items-center justify-between p-4 mx-auto">
+        <h1 class="text-xl font-bold text-indigo-600">CIER Admin Panel</h1>
+        <div>
+          <span class="mr-4 text-gray-700">Welcome, Admin!</span>
+          <a
+            href="/login.html"
+            class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600"
+            >Logout</a
+          >
+        </div>
+      </nav>
     </header>
 
     <!-- Main Content -->
     <main class="container p-4 mx-auto mt-6 space-y-8">
-        <!-- All Incidents Table -->
-        <div class="p-6 bg-white rounded-lg shadow-md">
-            <h2 class="mb-4 text-2xl font-bold text-gray-800">All Reported Incidents</h2>
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">ID</th>
-                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">User ID</th>
-                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Description</th>
-                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Status</th>
-                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Date</th>
-                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        <!-- Example Row 1 -->
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">#1024</td>
-                            <td class="px-6 py-4 whitespace-nowrap">user-5</td>
-                            <td class="px-6 py-4 whitespace-nowrap">Loud noise complaint at apartment 3B.</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">Resolved</span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">2023-10-26</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <button class="text-indigo-600 hover:text-indigo-900">View Details</button>
-                            </td>
-                        </tr>
-                        <!-- Example Row 2 -->
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">#1023</td>
-                            <td class="px-6 py-4 whitespace-nowrap">user-8</td>
-                            <td class="px-6 py-4 whitespace-nowrap">Suspicious vehicle parked on Oak Street.</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <select class="p-1 text-xs border-gray-300 rounded-md">
-                                    <option class="bg-blue-100">Reported</option>
-                                    <option selected class="bg-yellow-100">Under Investigation</option>
-                                    <option class="bg-green-100">Resolved</option>
-                                </select>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">2023-10-25</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <button class="text-indigo-600 hover:text-indigo-900">View Details</button>
-                            </td>
-                        </tr>
-                         <!-- Example Row 3 -->
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">#1021</td>
-                            <td class="px-6 py-4 whitespace-nowrap">user-2</td>
-                            <td class="px-6 py-4 whitespace-nowrap">Broken streetlight at the park entrance.</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex px-2 text-xs font-semibold leading-5 text-blue-800 bg-blue-100 rounded-full">Reported</span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">2023-10-24</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <button class="text-indigo-600 hover:text-indigo-900">View Details</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+      <!-- All Incidents Table -->
+      <div class="p-6 bg-white rounded-lg shadow-md">
+        <h2 class="mb-4 text-2xl font-bold text-gray-800">
+          All Reported Incidents
+        </h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full bg-white">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
+                >
+                  ID
+                </th>
+                <th
+                  class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
+                >
+                  User ID
+                </th>
+                <th
+                  class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
+                >
+                  Description
+                </th>
+                <th
+                  class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
+                >
+                  Status
+                </th>
+                <th
+                  class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
+                >
+                  Date
+                </th>
+                <th
+                  class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
+                >
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <!-- Example Row 1 -->
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">#1024</td>
+                <td class="px-6 py-4 whitespace-nowrap">user-5</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  Loud noise complaint at apartment 3B.
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span
+                    class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full"
+                    >Resolved</span
+                  >
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">2023-10-26</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <button class="text-indigo-600 hover:text-indigo-900">
+                    View Details
+                  </button>
+                </td>
+              </tr>
+              <!-- Example Row 2 -->
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">#1023</td>
+                <td class="px-6 py-4 whitespace-nowrap">user-8</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  Suspicious vehicle parked on Oak Street.
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <select class="p-1 text-xs border-gray-300 rounded-md">
+                    <option class="bg-blue-100">Reported</option>
+                    <option selected class="bg-yellow-100">
+                      Under Investigation
+                    </option>
+                    <option class="bg-green-100">Resolved</option>
+                  </select>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">2023-10-25</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <button class="text-indigo-600 hover:text-indigo-900">
+                    View Details
+                  </button>
+                </td>
+              </tr>
+              <!-- Example Row 3 -->
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">#1021</td>
+                <td class="px-6 py-4 whitespace-nowrap">user-2</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  Broken streetlight at the park entrance.
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span
+                    class="inline-flex px-2 text-xs font-semibold leading-5 text-blue-800 bg-blue-100 rounded-full"
+                    >Reported</span
+                  >
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">2023-10-24</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <button class="text-indigo-600 hover:text-indigo-900">
+                    View Details
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>
 
-        <!-- User Management Table -->
-        <div class="p-6 bg-white rounded-lg shadow-md">
-            <h2 class="mb-4 text-2xl font-bold text-gray-800">User Management</h2>
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">User ID</th>
-                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Email</th>
-                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Role</th>
-                            <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        <!-- Example User 1 -->
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">user-1</td>
-                            <td class="px-6 py-4 whitespace-nowrap">admin@cier.com</td>
-                            <td class="px-6 py-4 whitespace-nowrap">Admin</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">N/A</td>
-                        </tr>
-                        <!-- Example User 2 -->
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">user-2</td>
-                            <td class="px-6 py-4 whitespace-nowrap">responder@cier.com</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <select class="p-1 text-xs border-gray-300 rounded-md">
-                                    <option>User</option>
-                                    <option selected>Responder</option>
-                                    <option>Admin</option>
-                                </select>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <button class="px-3 py-1 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">Save</button>
-                            </td>
-                        </tr>
-                        <!-- Example User 3 -->
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">user-3</td>
-                            <td class="px-6 py-4 whitespace-nowrap">citizen@example.com</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <select class="p-1 text-xs border-gray-300 rounded-md">
-                                    <option selected>User</option>
-                                    <option>Responder</option>
-                                    <option>Admin</option>
-                                </select>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <button class="px-3 py-1 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700">Save</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+      <!-- User Management Table -->
+      <div class="p-6 bg-white rounded-lg shadow-md">
+        <h2 class="mb-4 text-2xl font-bold text-gray-800">User Management</h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full bg-white">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
+                >
+                  User ID
+                </th>
+                <th
+                  class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
+                >
+                  Email
+                </th>
+                <th
+                  class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
+                >
+                  Role
+                </th>
+                <th
+                  class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
+                >
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <!-- Example User 1 -->
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">user-1</td>
+                <td class="px-6 py-4 whitespace-nowrap">admin@cier.com</td>
+                <td class="px-6 py-4 whitespace-nowrap">Admin</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  N/A
+                </td>
+              </tr>
+              <!-- Example User 2 -->
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">user-2</td>
+                <td class="px-6 py-4 whitespace-nowrap">responder@cier.com</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <select class="p-1 text-xs border-gray-300 rounded-md">
+                    <option>User</option>
+                    <option selected>Responder</option>
+                    <option>Admin</option>
+                  </select>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <button
+                    class="px-3 py-1 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
+                  >
+                    Save
+                  </button>
+                </td>
+              </tr>
+              <!-- Example User 3 -->
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">user-3</td>
+                <td class="px-6 py-4 whitespace-nowrap">citizen@example.com</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <select class="p-1 text-xs border-gray-300 rounded-md">
+                    <option selected>User</option>
+                    <option>Responder</option>
+                    <option>Admin</option>
+                  </select>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <button
+                    class="px-3 py-1 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
+                  >
+                    Save
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>
+
+      <!-- Assign Response Team Account -->
+      <div class="p-6 bg-white rounded-lg shadow-md">
+        <h2 class="mb-4 text-2xl font-bold text-gray-800">
+          Assign Response Team Account
+        </h2>
+        <form id="create-response-user" class="space-y-4">
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700"
+              for="response-name"
+            >
+              Full name
+            </label>
+            <input
+              id="response-name"
+              name="name"
+              type="text"
+              required
+              class="w-full px-4 py-2 mt-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="Jane Doe"
+            />
+          </div>
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700"
+              for="response-email"
+            >
+              Email
+            </label>
+            <input
+              id="response-email"
+              name="email"
+              type="email"
+              required
+              class="w-full px-4 py-2 mt-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="team@cier.com"
+            />
+          </div>
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700"
+              for="response-role"
+            >
+              Response team
+            </label>
+            <select
+              id="response-role"
+              name="role"
+              class="w-full px-4 py-2 mt-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="Police">Police / Security</option>
+              <option value="Fire Service">Fire Service</option>
+              <option value="Medical Response">Medical Response</option>
+              <option value="Disaster Relief">Disaster Relief</option>
+              <option value="Road Safety">Road Safety</option>
+              <option value="Utility Support">Utility Support</option>
+            </select>
+            <p class="mt-2 text-xs text-gray-500">
+              Choose the emergency unit this account will represent.
+            </p>
+          </div>
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700"
+              for="response-password"
+            >
+              Temporary password
+            </label>
+            <input
+              id="response-password"
+              name="password"
+              type="text"
+              minlength="6"
+              required
+              class="w-full px-4 py-2 mt-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="Minimum 6 characters"
+            />
+          </div>
+          <button
+            type="submit"
+            class="inline-flex items-center px-5 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
+          >
+            Create account
+          </button>
+          <p id="response-feedback" class="text-sm text-gray-600"></p>
+        </form>
+      </div>
     </main>
-</body>
+    <script>
+      document
+        .getElementById("create-response-user")
+        ?.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const form = event.currentTarget;
+          const feedback = document.getElementById("response-feedback");
+          const payload = {
+            name: form.name.value.trim(),
+            email: form.email.value.trim(),
+            role: form.role.value,
+            password: form.password.value,
+          };
+          try {
+            const res = await fetch(
+              "http://localhost:3800/users/admin/create",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              }
+            );
+            if (!res.ok) {
+              throw new Error(
+                (await res.json()).error || "Failed to create user"
+              );
+            }
+            feedback.textContent = "Responder account created successfully.";
+            feedback.className = "text-sm text-green-600";
+            form.reset();
+          } catch (error) {
+            feedback.textContent = error.message || "Unable to create account.";
+            feedback.className = "text-sm text-red-600";
+          }
+        });
+    </script>
+  </body>
 </html>

@@ -255,6 +255,25 @@
         font-size: 15px;
         color: var(--muted);
       }
+      .option-row {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 15px;
+        color: var(--muted);
+      }
+      .checkbox {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .checkbox input {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--primary);
+      }
       .badges {
         display: flex;
         flex-direction: column;
@@ -426,6 +445,7 @@
           </button>
           <div class="form-header">
             <div class="form-header-text">
+           
               <!-- <span>Access console</span> -->
               <h2>Sign in to CIER</h2>
             </div>
@@ -455,6 +475,15 @@
             </div>
             <div class="actions">
               <a href="#">Forgot password?</a>
+            </div>
+            <div class="option-row">
+              <label class="checkbox">
+                <input type="checkbox" id="admin-login" />
+                <span>Sign in as admin</span>
+              </label>
+              <span style="font-size: 13px">
+                Admin access unlocks monitoring and response controls.
+              </span>
             </div>
             <button type="submit" class="btn">Sign in</button>
           </form>
@@ -502,12 +531,13 @@
           event.preventDefault();
           const email = document.getElementById("email-address").value.trim();
           const password = document.getElementById("password").value;
+          const adminMode = document.getElementById("admin-login").checked;
           const apiUrl = "http://localhost:3800/users/login";
           try {
             const res = await fetch(apiUrl, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email, password }),
+              body: JSON.stringify({ email, password, admin: adminMode }),
             });
             const text = await res.text();
             let body;
@@ -525,8 +555,13 @@
             }
             const token = body.token || btoa(`${email}:${Date.now()}`);
             localStorage.setItem("token", token);
-            localStorage.setItem("currentUser", JSON.stringify({ email }));
-            window.location.href = "./dashboard.html";
+            localStorage.setItem(
+              "currentUser",
+              JSON.stringify({ email, admin: adminMode })
+            );
+            window.location.href = adminMode
+              ? "./admin-dashboard.html"
+              : "./dashboard.html";
           } catch (err) {
             alert("Network error: " + (err.message || err));
           }
