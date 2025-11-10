@@ -193,6 +193,25 @@
         background: transparent;
         color: var(--text);
       }
+      input[type="file"] {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px dashed rgba(15, 23, 42, 0.16);
+        background: rgba(15, 23, 42, 0.02);
+        color: var(--text);
+        cursor: pointer;
+      }
+      input[type="file"]::file-selector-button {
+        margin-right: 14px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid rgba(37, 99, 235, 0.35);
+        background: rgba(37, 99, 235, 0.12);
+        color: var(--primary-solid);
+        font-weight: 600;
+        cursor: pointer;
+      }
 
       textarea {
         min-height: 140px;
@@ -333,10 +352,19 @@
         background: rgba(15, 23, 42, 0.55);
         border-color: rgba(148, 163, 184, 0.24);
       }
+      :root[data-theme="dark"] input[type="file"] {
+        background: rgba(15, 23, 42, 0.55);
+        border-color: rgba(148, 163, 184, 0.3);
+        color: var(--text);
+      }
+      :root[data-theme="dark"] input[type="file"]::file-selector-button {
+        border-color: rgba(96, 165, 250, 0.5);
+        background: rgba(37, 99, 235, 0.24);
+        color: #e0f2fe;
+      }
 
-      :root[data-theme="dark"] .stat {
-        background: rgba(17, 24, 39, 0.6);
-        border-color: rgba(148, 163, 184, 0.12);
+      .hidden {
+        display: none !important;
       }
     </style>
 
@@ -373,7 +401,7 @@
 
       <main class="layout">
         <section class="card">
-          <form id="report-form" novalidate>
+          <form id="report-form" novalidate enctype="multipart/form-data">
             <div>
               <label for="title">Title</label>
               <input
@@ -547,6 +575,20 @@
               ></textarea>
               <div class="helper small" id="desc-count">0 characters</div>
             </div>
+            <div>
+              <label for="attachments">Upload evidence photos</label>
+              <input
+                id="attachments"
+                name="attachments"
+                type="file"
+                accept="image/*"
+                multiple
+              />
+              <div class="small">
+                Attach up to 5 images (JPG or PNG, 5&nbsp;MB each). Files are
+                stored securely with your report.
+              </div>
+            </div>
 
             <div
               class="actions"
@@ -608,6 +650,7 @@
                 <div id="pv-location">Location: —</div>
                 <div id="pv-reporter">Reporter: —</div>
                 <div id="pv-time">Time: —</div>
+                <div id="pv-attachments">Attachments: none</div>
               </div>
 
               <p id="pv-desc" style="margin-top: 10px; color: var(--muted)">
@@ -765,12 +808,14 @@
       const cancelBtn = document.getElementById("cancel");
       const desc = document.getElementById("description");
       const descCount = document.getElementById("desc-count");
+      const attachmentsInput = document.getElementById("attachments");
       const pvTitle = document.getElementById("pv-title");
       const pvStatus = document.getElementById("pv-status");
       const pvLocation = document.getElementById("pv-location");
       const pvReporter = document.getElementById("pv-reporter");
       const pvTime = document.getElementById("pv-time");
       const pvDesc = document.getElementById("pv-desc");
+      const pvAttachments = document.getElementById("pv-attachments");
       const statTotal = document.getElementById("stat-total");
       const statOpen = document.getElementById("stat-open");
       const statClosed = document.getElementById("stat-closed");
@@ -842,6 +887,7 @@
           "—";
         const description = desc.value.trim() || "No description yet.";
         const severity = document.getElementById("severity").value || "low";
+        const attachmentCount = attachmentsInput?.files.length || 0;
 
         pvTitle.textContent = title;
         pvStatus.textContent = type.replace(/_/g, " ");
@@ -850,6 +896,12 @@
         pvReporter.textContent = "Reporter: " + reporter;
         pvTime.textContent = "Time: " + new Date().toLocaleString();
         pvDesc.textContent = description;
+        pvAttachments.textContent =
+          attachmentCount > 0
+            ? `Attachments: ${attachmentCount} file${
+                attachmentCount > 1 ? "s" : ""
+              }`
+            : "Attachments: none";
 
         descCount.textContent = desc.value.length + " characters";
       }
@@ -868,6 +920,7 @@
         document.getElementById(id).addEventListener("change", updatePreview);
       });
       desc.addEventListener("input", updatePreview);
+      attachmentsInput?.addEventListener("change", updatePreview);
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -900,6 +953,13 @@
           severity: document.getElementById("severity").value || "low",
           createdAt: new Date().toISOString(),
           resolvedAt: null,
+          attachmentsMeta: attachmentsInput
+            ? Array.from(attachmentsInput.files).map((file) => ({
+                name: file.name,
+                size: file.size,
+                type: file.type,
+              }))
+            : [],
         };
 
         const localList = loadIncidents();
@@ -924,6 +984,7 @@
               type: prepared.type,
               status: prepared.status,
               severity: prepared.severity,
+              attachments: prepared.attachmentsMeta,
             }),
           });
 

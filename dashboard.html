@@ -291,6 +291,9 @@
         </div>
 
         <div class="nav-right">
+          <button type="button" id="theme-toggle" class="nav-btn">
+            🌙 Dark
+          </button>
           <a href="./report.html" class="nav-btn">Report Incident</a>
           <button id="refresh-server" class="nav-btn">Refresh</button>
           <button id="logout-button" class="nav-btn">Logout</button>
@@ -390,6 +393,35 @@
 
     <!-- existing scripts remain below -->
     <script>
+      const THEME_KEY = "cier_theme";
+      const themeToggleBtn = document.getElementById("theme-toggle");
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      function setTheme(nextTheme) {
+        const theme = nextTheme === "dark" ? "dark" : "light";
+        document.documentElement.dataset.theme = theme;
+        localStorage.setItem(THEME_KEY, theme);
+        if (themeToggleBtn) {
+          themeToggleBtn.textContent =
+            theme === "dark" ? "☀️ Light" : "🌙 Dark";
+        }
+      }
+      setTheme(
+        localStorage.getItem(THEME_KEY) ||
+          (mediaQuery.matches ? "dark" : "light")
+      );
+      themeToggleBtn?.addEventListener("click", () => {
+        setTheme(
+          document.documentElement.dataset.theme === "dark" ? "light" : "dark"
+        );
+      });
+      if (mediaQuery.addEventListener) {
+        mediaQuery.addEventListener("change", (event) => {
+          if (!localStorage.getItem(THEME_KEY)) {
+            setTheme(event.matches ? "dark" : "light");
+          }
+        });
+      }
+
       // small helpers & storage
       const INCIDENTS_KEY = "cier_incidents";
       const USER_KEY = "currentUser";
