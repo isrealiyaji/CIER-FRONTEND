@@ -1,155 +1,400 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - CIER</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      :root {
+        --bg: linear-gradient(135deg, #eef2ff 0%, #e0f2fe 45%, #f4f7fa 100%);
+        --surface: rgba(255, 255, 255, 0.9);
+        --surface-subtle: rgba(255, 255, 255, 0.65);
+        --text: #0f172a;
+        --muted: #64748b;
+        --primary: #2563eb;
+        --primary-glow: rgba(37, 99, 235, 0.22);
+        --accent: #0ea5e9;
+        --radius: 18px;
+        --shadow-card: 0 32px 70px rgba(15, 23, 42, 0.16);
+        --input-border: rgba(15, 23, 42, 0.08);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
       body {
-        background-color: #f8fafc;
+        margin: 0;
+        min-height: 100%;
+        font-family: "Plus Jakarta Sans", Inter, system-ui, -apple-system,
+          "Segoe UI", Roboto, Arial;
+        background: var(--bg);
+        color: var(--text);
+        position: relative;
+        overflow-x: hidden;
+      }
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        width: 460px;
+        height: 460px;
+        border-radius: 50%;
+        filter: blur(160px);
+        z-index: 0;
+        opacity: 0.58;
+      }
+      body::before {
+        top: -160px;
+        left: -120px;
+        background: rgba(37, 99, 235, 0.16);
+      }
+      body::after {
+        bottom: -180px;
+        right: -120px;
+        background: rgba(14, 165, 233, 0.18);
+      }
+      .shell {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 64px 24px;
+        position: relative;
+        z-index: 1;
+      }
+      .card {
+        width: min(1080px, 100%);
+        display: grid;
+        grid-template-columns: 360px minmax(0, 1.05fr);
+        gap: 36px;
+        padding: 46px;
+        border-radius: var(--radius);
+        background: var(--surface);
+        box-shadow: var(--shadow-card);
+        backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+      }
+      .intro {
+        border-radius: 20px;
+        padding: 38px 32px;
+        background: rgba(37, 99, 235, 0.85);
+        border: 1px solid rgba(37, 99, 235, 0.3);
+        display: flex;
+        flex-direction: column;
+        gap: 26px;
+        position: relative;
+        overflow: hidden;
+        color: #ffffff;
+        text-shadow: 0 6px 18px rgba(11, 22, 45, 0.45);
+      }
+      .intro::after {
+        z-index: 0;
+        pointer-events: none;
+      }
+      .intro > * {
+        position: relative;
+        z-index: 1;
+      }
+      .intro h1 {
+        color: #ffffff;
+        font-size: 30px;
+        font-weight: 800;
+      }
+      .intro p {
+        color: rgba(255, 255, 255, 0.98);
+        font-weight: 600;
+      }
+      .intro .pill {
+        background: rgba(15, 23, 42, 0.22);
+        color: #ffffff;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        box-shadow: 0 14px 36px rgba(15, 23, 42, 0.25);
+      }
+      .intro .highlight {
+        color: rgba(255, 255, 255, 0.98);
+        font-weight: 600;
+      }
+      .intro .highlight li::before {
+        color: #ffffff;
+      }
+      .intro a {
+        color: #ffffff;
+        font-weight: 700;
+        text-decoration: underline;
+      }
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+      }
+      p {
+        margin: 0;
+        color: var(--muted);
+        font-weight: 500;
+      }
+      section {
+        padding: 0 8px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .form-header {
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .form-header span {
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: rgba(37, 99, 235, 0.75);
+      }
+      .form-header h2 {
+        margin: 0;
+        font-size: 30px;
+        font-weight: 700;
+        color: var(--text);
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+        max-width: 440px;
+      }
+      label {
+        font-weight: 600;
+        font-size: 14px;
+        color: rgba(15, 23, 42, 0.7);
+      }
+      input[type="email"],
+      input[type="password"] {
+        width: 100%;
+        padding: 15px 18px;
+        border-radius: 15px;
+        border: 1px solid var(--input-border);
+        font-size: 15px;
+        background: rgba(255, 255, 255, 0.9);
+        color: var(--text);
+        transition: box-shadow 0.15s ease, border-color 0.15s ease;
+      }
+      input:focus {
+        outline: none;
+        border-color: rgba(37, 99, 235, 0.5);
+        box-shadow: 0 22px 56px rgba(37, 99, 235, 0.16);
+      }
+      .btn {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        padding: 15px 22px;
+        border-radius: 15px;
+        border: none;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.08s ease, box-shadow 0.12s ease;
+        color: #fff;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        box-shadow: 0 20px 54px rgba(37, 99, 235, 0.3);
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 28px 64px rgba(37, 99, 235, 0.34);
+      }
+      .actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .badges {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.22);
+        color: #fff;
+        font-weight: 600;
+        font-size: 13px;
+        width: fit-content;
+        backdrop-filter: blur(6px);
+      }
+      .highlight {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.88);
+      }
+      .highlight li {
+        list-style: none;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .highlight li::before {
+        content: "•";
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 18px;
+      }
+      @media (max-width: 820px) {
+        .card {
+          grid-template-columns: 1fr;
+          padding: 36px 28px;
+        }
+        .intro {
+          order: -1;
+          text-align: center;
+          align-items: center;
+        }
+        section {
+          padding: 0;
+          align-items: center;
+        }
+        form {
+          width: 100%;
+          max-width: 100%;
+        }
+        .badges {
+          align-items: center;
+        }
+        .pill {
+          justify-content: center;
+        }
+      }
+      :root[data-theme="dark"] {
+        --surface: rgba(17, 24, 39, 0.9);
+        --surface-subtle: rgba(17, 24, 39, 0.6);
+        --text: #f8fafc;
+        --muted: rgba(203, 213, 225, 0.75);
+        --primary: #3b82f6;
+        --accent: #38bdf8;
+        --shadow-card: 0 38px 80px rgba(2, 6, 23, 0.55);
+        --input-border: rgba(148, 163, 184, 0.24);
+      }
+      :root[data-theme="dark"] input[type="email"],
+      :root[data-theme="dark"] input[type="password"] {
+        background: rgba(15, 23, 42, 0.6);
+        color: var(--text);
       }
     </style>
   </head>
-  <body class="bg-gray-100">
-    <div class="flex items-center justify-center min-h-screen">
-      <div
-        class="flex w-full max-w-4xl mx-4 bg-white rounded-lg shadow-lg md:mx-0"
-      >
-        <!-- Left Panel -->
-        <div class="hidden w-1/2 bg-indigo-600 md:block">
-          <div
-            class="flex flex-col items-center justify-center h-full p-12 text-white"
-          >
-            <h1 class="text-3xl font-bold">CIER</h1>
-            <p class="mt-2 text-center">
-              Community Incident & Emergency Reporting
-            </p>
-            <p class="mt-10 text-sm text-center">
-              Your safety is our priority. Report incidents to help us build a
-              safer community together.
+  <body>
+    <div class="shell">
+      <div class="card">
+        <aside class="intro">
+          <div class="logo">CI</div>
+          <div>
+            <h1>Welcome back</h1>
+            <p>
+              Sign in to your secure incident center. We encrypt every report
+              and check each session before access.
             </p>
           </div>
-        </div>
-        <!-- Right Panel (Login Form) -->
-        <div class="w-full p-8 md:w-1/2">
-          <div class="text-center">
-            <h2 class="text-3xl font-extrabold text-gray-900">
-              Sign in to your account
-            </h2>
-            <p class="mt-2 text-sm text-gray-600">Welcome back!</p>
+          <div class="badges">
+            <div class="pill">🛡️ Encrypted data vault</div>
+            <div class="pill">🔐 Two-factor ready</div>
           </div>
-          <form id="login-form" class="mt-8 space-y-6" method="POST">
-            <input type="hidden" name="remember" value="true" />
-            <div class="rounded-md shadow-sm -space-y-px">
-              <div>
-                <label for="email-address" class="sr-only">Email address</label>
-                <input
-                  id="email-address"
-                  name="email"
-                  type="email"
-                  autocomplete="email"
-                  required
-                  class="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                  placeholder="Email address"
-                />
-              </div>
-              <div>
-                <label for="password" class="sr-only">Password</label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autocomplete="current-password"
-                  required
-                  class="relative block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                  placeholder="Password"
-                />
-              </div>
-            </div>
-
-            <div class="flex items-center justify-between">
-              <div class="text-sm">
-                <a
-                  href="#"
-                  class="font-medium text-indigo-600 hover:text-indigo-500"
-                >
-                  Forgot your password?
-                </a>
-              </div>
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                class="relative flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md group hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                Sign in
-              </button>
-            </div>
-          </form>
-          <p class="mt-4 text-sm text-center text-gray-600">
-            Don't have an account???
-            <a
-              href="./register.html"
-              class="font-medium text-indigo-600 hover:text-indigo-500"
-            >
-              Register here
-            </a>
+          <ul class="highlight">
+            <li>All traffic is protected with HTTPS and TLS.</li>
+            <li>Login events are logged for easy auditing.</li>
+            <li>Role rules stop unauthorized changes.</li>
+          </ul>
+          <p style="font-size: 13px">
+            Need an account?
+            <a href="./register.html">Register instead</a>
           </p>
-        </div>
+        </aside>
+
+        <section>
+          <div class="form-header">
+            <span>Access console</span>
+            <h2>Sign in to CIER</h2>
+          </div>
+          <form id="login-form" method="POST">
+            <div>
+              <label for="email-address">Email address</label>
+              <input
+                id="email-address"
+                name="email"
+                type="email"
+                autocomplete="email"
+                required
+                placeholder="you@example.com"
+              />
+            </div>
+            <div>
+              <label for="password">Password</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                required
+                placeholder="Password"
+              />
+            </div>
+            <div class="actions">
+              <a href="#">Forgot password?</a>
+            </div>
+            <button type="submit" class="btn">Sign in</button>
+          </form>
+        </section>
       </div>
     </div>
 
     <script>
-      document.getElementById('login-form').addEventListener('submit', async function (event) {
-    event.preventDefault();
-
-    const email = document.getElementById('email-address').value.trim();
-    const password = document.getElementById('password').value;
-
-    // Replace with your real API endpoint
-    const apiUrl = 'http://localhost:3800/users/login';
-
-    try {
-        const res = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-                // include other headers your API requires (e.g. Authorization) if
-            },
-            body: JSON.stringify({ email, password })
+      document
+        .getElementById("login-form")
+        .addEventListener("submit", async function (event) {
+          event.preventDefault();
+          const email = document.getElementById("email-address").value.trim();
+          const password = document.getElementById("password").value;
+          const apiUrl = "http://localhost:3800/users/login";
+          try {
+            const res = await fetch(apiUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, password }),
+            });
+            const text = await res.text();
+            let body;
+            try {
+              body = JSON.parse(text);
+            } catch {
+              body = text;
+            }
+            if (!res.ok) {
+              alert(
+                "Login failed: " +
+                  (body && body.error ? body.error : JSON.stringify(body))
+              );
+              return;
+            }
+            const token = body.token || btoa(`${email}:${Date.now()}`);
+            localStorage.setItem("token", token);
+            localStorage.setItem("currentUser", JSON.stringify({ email }));
+            window.location.href = "./dashboard.html";
+          } catch (err) {
+            alert("Network error: " + (err.message || err));
+          }
         });
-
-        // Try to parse JSON if possible, otherwise get raw text
-        let body;
-        const text = await res.text();
-        try {
-            body = JSON.parse(text);
-        } catch {
-            body = text;
-        }
-
-        if (!res.ok) {
-            // Show detailed error so you can debug the 500
-            console.error('Login failed', res.status, body);
-            alert('Login failed: ' + (body && body.error ? body.error : (typeof body === "string" ? body : JSON.stringify(body))));
-            return;
-        }
-
-        // Success: inspect returned token/data
-        console.log('Login success', body);
-        const token = body.token || btoa(`${email}:${Date.now()}`);
-        localStorage.setItem('token', token);
-        localStorage.setItem('currentUser', JSON.stringify({ email }));
-        window.location.href = './dashboard.html';
-
-    } catch (err) {
-        // Network or unexpected error
-        console.error('Network or unexpected error during login', err);
-        alert('Network error: ' + (err.message || err));
-    }
-});
     </script>
   </body>
 </html>
