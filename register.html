@@ -82,10 +82,9 @@
         </a>
       </p>
       <script>
-        // Client-side registration that stores users in localStorage
         document
           .getElementById("register-form")
-          .addEventListener("submit", function (e) {
+          .addEventListener("submit", async (e) => {
             e.preventDefault();
             const email = document.getElementById("email-address").value.trim();
             const password = document.getElementById("password").value;
@@ -100,28 +99,28 @@
               return;
             }
 
-            const usersJson = localStorage.getItem("cier_users") || "[]";
-            let users;
             try {
-              users = JSON.parse(usersJson);
-            } catch {
-              users = [];
-            }
-
-            if (
-              users.find((u) => u.email.toLowerCase() === email.toLowerCase())
-            ) {
-              alert(
-                "An account with this email already exists. Please sign in."
+              const response = await fetch(
+                "http://localhost:3800/users/register",
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ email, password }),
+                }
               );
-              window.location.href = "./login.html";
-              return;
-            }
 
-            users.push({ email, password });
-            localStorage.setItem("cier_users", JSON.stringify(users));
-            alert("Registration successful. You can now sign in.");
-            window.location.href = "./login.html";
+              if (!response.ok) {
+                const error = await response.json();
+                alert(error.message || "Registration failed.");
+                return;
+              }
+
+              alert("Registration successful. You can now sign in.");
+              window.location.href = "./login.html";
+            } catch (err) {
+              console.error(err);
+              alert("Unable to reach the server. Try again later.");
+            }
           });
       </script>
     </div>
