@@ -198,8 +198,30 @@
               return;
             }
 
+            let data = {};
+            try {
+              data = await response.json();
+            } catch (_) {}
+
+            if (data.token) {
+              localStorage.setItem("cierAuthToken", data.token);
+            }
+            if (data.user) {
+              localStorage.setItem(
+                "cierCurrentUser",
+                JSON.stringify(data.user)
+              );
+            } else {
+              localStorage.setItem(
+                "cierCurrentUser",
+                JSON.stringify({ email: pendingEmail })
+              );
+            }
+
             alert("Account verified successfully.");
-            window.location.href = "./dashboard.html";
+            window.location.href = `./dashboard.html?email=${encodeURIComponent(
+              pendingEmail
+            )}`;
           } catch (err) {
             console.error(err);
             alert("Unable to verify OTP right now.");
