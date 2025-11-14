@@ -424,9 +424,10 @@
 
       // small helpers & storage
       const INCIDENTS_KEY = "cier_incidents";
-      const USER_KEY = "currentUser";
-      // Ensure this matches your backend. report.html also posts to this path.
-      const API_INCIDENTS = "http://localhost:3800/api/incidents";
+      const CURRENT_USER_KEY = "cierCurrentUser";
+      const LEGACY_USER_KEY = "currentUser";
+      // Ensure this matches your backend user-incidents endpoint.
+      const API_INCIDENTS = "http://localhost:3800/incidents/myincidents";
 
       // DOM refs
       const tbody = document.getElementById("incidents-table-body");
@@ -483,7 +484,11 @@
                 ? `${it.latitude}, ${it.longitude}`
                 : it.address || ""),
             reporter:
-              it.reporter || it.reporterEmail || it.email || "anonymous",
+              it.reportedBy ||
+              it.reporter ||
+              it.reporterEmail ||
+              it.email ||
+              "anonymous",
             status: (it.status || it.state || "open").toLowerCase(),
             createdAt:
               it.createdAt ||
@@ -496,9 +501,41 @@
         });
       }
 
+      function getCurrentUser() {
+        try {
+          return (
+            JSON.parse(localStorage.getItem(CURRENT_USER_KEY)) ||
+            JSON.parse(localStorage.getItem(LEGACY_USER_KEY)) ||
+            {}
+          );
+        } catch {
+          return {};
+        }
+      }
+
+      function filterIncidentsForCurrentUser(list = []) {
+        const user = getCurrentUser();
+        if (!user.email) return list;
+        const email = user.email.toLowerCase();
+        return list.filter((incident) => {
+          const reporter = (
+            incident.reporter ||
+            incident.reportedBy ||
+            (incident.raw &&
+              (incident.raw.reporter ||
+                incident.raw.reportedBy ||
+                incident.raw.reporterEmail)) ||
+            ""
+          ).toString();
+          return reporter.toLowerCase() === email;
+        });
+      }
+
       async function fetchServerIncidents() {
         try {
-          const token = localStorage.getItem("token");
+          const token =
+            localStorage.getItem("cierAuthToken") ||
+            localStorage.getItem("token");
           const url =
             API_INCIDENTS +
             (API_INCIDENTS.includes("?") ? "&" : "?") +
@@ -536,7 +573,6 @@
           }
           const normalized = normalizeList(list);
           saveIncidents(normalized);
-          // expose for debugging
           window.__lastServerIncidents = normalized;
           return normalized;
         } catch (err) {
@@ -546,9 +582,9 @@
       }
 
       // render table and KPI cards
-      function renderIncidents() {
-        const all = loadIncidents();
-        // table
+      function renderIncidents(incidents) {
+        const baseList = Array.isArray(incidents) ? incidents : loadIncidents();
+        const all = filterIncidentsForCurrentUser(baseList);
         tbody.innerHTML = "";
         all
           .slice()
@@ -792,14 +828,9 @@
 
       // init & sync
       async function init() {
-        // show current user if present
-        const cu = localStorage.getItem(USER_KEY);
-        if (cu) {
-          try {
-            const u = JSON.parse(cu);
-            if (u.email && currentUserEl)
-              currentUserEl.textContent = `Signed in as ${u.email}`;
-          } catch {}
+        const user = getCurrentUser();
+        if (user.email && currentUserEl) {
+          currentUserEl.textContent = `Signed in as ${user.email}`;
         }
 
         // render local immediately
@@ -807,12 +838,12 @@
 
         // try server
         const server = await fetchServerIncidents();
-        if (server) renderIncidents();
+        if (server) renderIncidents(server);
 
         // polling
         setInterval(async () => {
-          const ok = await fetchServerIncidents();
-          if (ok) renderIncidents();
+          const next = await fetchServerIncidents();
+          if (next) renderIncidents(next);
         }, POLL_INTERVAL);
       }
 

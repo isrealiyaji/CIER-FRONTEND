@@ -703,7 +703,8 @@
       });
 
       const INCIDENTS_KEY = "cier_incidents";
-      const USER_KEY = "currentUser";
+      const CURRENT_USER_KEY = "cierCurrentUser";
+      const LEGACY_USER_KEY = "currentUser";
       const NOMINATIM_ENDPOINT = "https://nominatim.openstreetmap.org/reverse";
       const API_INCIDENTS = "http://localhost:3800/incidents/";
 
@@ -770,6 +771,7 @@
           async (pos) => {
             const lat = pos.coords.latitude;
             const lon = pos.coords.longitude;
+            lastCoords = { latitude: lat, longitude: lon };
             setLocStatus(
               `Got coords: ${lat.toFixed(5)}, ${lon.toFixed(
                 5
@@ -804,6 +806,8 @@
         );
       });
 
+      let lastCoords = null;
+
       const form = document.getElementById("report-form");
       const cancelBtn = document.getElementById("cancel");
       const desc = document.getElementById("description");
@@ -820,12 +824,14 @@
       const statOpen = document.getElementById("stat-open");
       const statClosed = document.getElementById("stat-closed");
 
-      const currentUser = localStorage.getItem(USER_KEY)
-        ? JSON.parse(localStorage.getItem(USER_KEY))
-        : null;
+      const currentUser =
+        JSON.parse(localStorage.getItem(CURRENT_USER_KEY) || "null") ||
+        JSON.parse(localStorage.getItem(LEGACY_USER_KEY) || "null");
+
       if (currentUser?.email) {
         const rep = document.getElementById("reporter");
-        if (rep && !rep.value) rep.value = currentUser.email;
+        rep.value = currentUser.email;
+        rep.readOnly = true;
       }
 
       let chart;
@@ -939,10 +945,7 @@
           title,
           description,
           location: document.getElementById("location").value.trim(),
-          reporter:
-            document.getElementById("reporter").value.trim() ||
-            currentUser?.email ||
-            "anonymous",
+          reporter: currentUser?.email || "anonymous",
           type: (function () {
             const sel = incidentTypeSelect?.value || "other";
             const other = incidentTypeOther?.value?.trim();
@@ -960,6 +963,9 @@
                 type: file.type,
               }))
             : [],
+          latitude: lastCoords?.latitude ?? null,
+          longitude: lastCoords?.longitude ?? null,
+          reportData: description,
         };
 
         const localList = loadIncidents();
@@ -985,6 +991,9 @@
               status: prepared.status,
               severity: prepared.severity,
               attachments: prepared.attachmentsMeta,
+              reportData: prepared.reportData,
+              latitude: prepared.latitude,
+              longitude: prepared.longitude,
             }),
           });
 
@@ -1044,7 +1053,9 @@
       }
 
       document.getElementById("logout").addEventListener("click", () => {
+        localStorage.removeItem("cierAuthToken");
         localStorage.removeItem("token");
+        localStorage.removeItem("cierCurrentUser");
         window.location.href = "./login.html";
       });
 
