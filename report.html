@@ -940,18 +940,21 @@
           if (!confirm("Description looks short. Submit anyway?")) return;
         }
 
+        const selectedType = (() => {
+          const sel = incidentTypeSelect?.value || "other";
+          const other = incidentTypeOther?.value?.trim();
+          if ((sel === "other" || sel === "more") && other) return other;
+          return sel;
+        })();
+
         const prepared = {
           id: "i_" + Date.now(),
           title,
           description,
           location: document.getElementById("location").value.trim(),
           reporter: currentUser?.email || "anonymous",
-          type: (function () {
-            const sel = incidentTypeSelect?.value || "other";
-            const other = incidentTypeOther?.value?.trim();
-            if ((sel === "other" || sel === "more") && other) return other;
-            return sel;
-          })(),
+          reportedBy: currentUser?.email || "anonymous",
+          type: selectedType,
           status: document.getElementById("status").value || "open",
           severity: document.getElementById("severity").value || "low",
           createdAt: new Date().toISOString(),
@@ -965,7 +968,10 @@
             : [],
           latitude: lastCoords?.latitude ?? null,
           longitude: lastCoords?.longitude ?? null,
-          reportData: description,
+          reportData: {
+            description,
+            type: selectedType,
+          },
         };
 
         const localList = loadIncidents();
@@ -986,7 +992,7 @@
               title: prepared.title,
               description: prepared.description,
               location: prepared.location,
-              reporter: prepared.reporter,
+              reportedBy: prepared.reportedBy,
               type: prepared.type,
               status: prepared.status,
               severity: prepared.severity,
@@ -997,34 +1003,50 @@
             }),
           });
 
-          const text = await res.text();
-          let body;
+          const rawBody = await res.text();
+          let parsedBody;
           try {
-            body = JSON.parse(text);
+            parsedBody = rawBody ? JSON.parse(rawBody) : {};
           } catch {
-            body = text;
+            parsedBody = {};
           }
 
           if (res.ok) {
-            const serverItem =
-              body && typeof body === "object" ? body : prepared;
-            if (!serverItem.createdAt)
-              serverItem.createdAt = prepared.createdAt;
-            const updated = loadIncidents();
-            const idx = updated.findIndex((i) => i.id === prepared.id);
-            if (idx !== -1) updated.splice(idx, 1, serverItem);
-            else updated.unshift(serverItem);
-            saveIncidents(updated);
-            refreshStats();
-            updateChart();
-            alert("Incident submitted and saved to server.");
+            const incident = parsedBody;
+            const merged = {
+              ...incident,
+              title: incident.title || prepared.title,
+              description:
+                incident.description ||
+                (incident.reportData && incident.reportData.description) ||
+                prepared.description,
+              type:
+                incident.type ||
+                (incident.reportData && incident.reportData.type) ||
+                prepared.type,
+              severity: incident.severity || prepared.severity,
+              location: incident.location || prepared.location,
+              reportedBy: incident.reportedBy || prepared.reportedBy,
+              status: incident.status || "open",
+              createdAt: incident.createdAt || new Date().toISOString(),
+              latitude: incident.latitude ?? incident.lat ?? prepared.latitude,
+              longitude:
+                incident.longitude ?? incident.lng ?? prepared.longitude,
+              reportData: incident.reportData || prepared.reportData,
+            };
+
+            const stored =
+              JSON.parse(localStorage.getItem("cier_incidents") || "[]") || [];
+            stored.unshift(merged);
+            localStorage.setItem("cier_incidents", JSON.stringify(stored));
             window.location.href = "./dashboard.html";
-            return;
           } else {
-            console.error("Server error:", res.status, body);
+            console.error("Server error:", res.status, parsedBody);
             alert(
               `Saved locally but server returned error ${res.status}: ${
-                body && body.error ? body.error : JSON.stringify(body)
+                parsedBody && parsedBody.error
+                  ? parsedBody.error
+                  : JSON.stringify(parsedBody)
               }`
             );
             window.location.href = "./dashboard.html";

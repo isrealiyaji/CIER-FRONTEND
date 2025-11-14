@@ -426,8 +426,8 @@
       const INCIDENTS_KEY = "cier_incidents";
       const CURRENT_USER_KEY = "cierCurrentUser";
       const LEGACY_USER_KEY = "currentUser";
-      // Ensure this matches your backend user-incidents endpoint.
       const API_INCIDENTS = "http://localhost:3800/incidents/myincidents";
+      const POLL_INTERVAL = 60000;
 
       // DOM refs
       const tbody = document.getElementById("incidents-table-body");
@@ -457,38 +457,64 @@
 
       function loadIncidents() {
         try {
-          return JSON.parse(localStorage.getItem(INCIDENTS_KEY) || "[]");
+          const raw = JSON.parse(localStorage.getItem(INCIDENTS_KEY) || "[]");
+          return normalizeList(Array.isArray(raw) ? raw : []);
         } catch {
           return [];
         }
       }
       function saveIncidents(list) {
-        localStorage.setItem(INCIDENTS_KEY, JSON.stringify(list));
+        const normalized = normalizeList(Array.isArray(list) ? list : []);
+        localStorage.setItem(INCIDENTS_KEY, JSON.stringify(normalized));
       }
 
       // normalize server payload to expected shape
       function normalizeList(list) {
-        return list.map((it, idx) => {
+        return list.map((item, idx) => {
+          const it = item && item.incident ? item.incident : item || {};
+          const reportDataObject =
+            it.reportData && typeof it.reportData === "object"
+              ? it.reportData
+              : null;
+          const reporterSource =
+            it.reportedBy ||
+            it.reporter ||
+            it.reporterEmail ||
+            it.email ||
+            it.user ||
+            "";
+          const reporterEmail = extractReporterEmail(reporterSource);
+          const description =
+            it.description ||
+            (reportDataObject
+              ? reportDataObject.description
+              : typeof it.reportData === "string"
+              ? it.reportData
+              : "");
+          const incidentType =
+            it.type ||
+            (reportDataObject ? reportDataObject.type : "") ||
+            it.category ||
+            "General";
+
           return {
             id: it.id || it._id || it.incidentId || `srv_${Date.now()}_${idx}`,
             title:
               it.title ||
-              it.reportData ||
-              (it.details ? it.details.substring(0, 60) : "Untitled"),
-            description: it.description || it.reportData || it.details || "",
-            type: it.type || it.category || "General",
+              (reportDataObject && reportDataObject.title) ||
+              (typeof it.reportData === "string"
+                ? it.reportData.slice(0, 60)
+                : "Untitled"),
+            description,
+            type: incidentType,
             severity: (it.severity || it.sev || "medium").toLowerCase(),
             location:
               it.location ||
               (it.latitude && it.longitude
                 ? `${it.latitude}, ${it.longitude}`
                 : it.address || ""),
-            reporter:
-              it.reportedBy ||
-              it.reporter ||
-              it.reporterEmail ||
-              it.email ||
-              "anonymous",
+            reporter: reporterEmail || "anonymous",
+            reporterMeta: reporterSource,
             status: (it.status || it.state || "open").toLowerCase(),
             createdAt:
               it.createdAt ||
@@ -513,20 +539,33 @@
         }
       }
 
+      function extractReporterEmail(value) {
+        if (!value) return "";
+        if (typeof value === "string") return value;
+        if (typeof value === "object") {
+          if (value.email) return value.email;
+          if (value.user?.email) return value.user.email;
+          if (value.contact?.email) return value.contact.email;
+        }
+        return "";
+      }
+
       function filterIncidentsForCurrentUser(list = []) {
         const user = getCurrentUser();
         if (!user.email) return list;
         const email = user.email.toLowerCase();
         return list.filter((incident) => {
-          const reporter = (
-            incident.reporter ||
-            incident.reportedBy ||
-            (incident.raw &&
-              (incident.raw.reporter ||
-                incident.raw.reportedBy ||
-                incident.raw.reporterEmail)) ||
-            ""
-          ).toString();
+          const reporter =
+            extractReporterEmail(incident.reporter) ||
+            extractReporterEmail(incident.reporterMeta) ||
+            extractReporterEmail(
+              incident.raw &&
+                (incident.raw.reportedBy ||
+                  incident.raw.reporter ||
+                  incident.raw.reporterEmail ||
+                  incident.raw.email)
+            );
+          if (!reporter) return true;
           return reporter.toLowerCase() === email;
         });
       }
@@ -562,9 +601,11 @@
           }
           const list = Array.isArray(payload)
             ? payload
-            : payload && Array.isArray(payload.data)
+            : payload?.data?.incidents
+            ? payload.data.incidents
+            : payload?.data
             ? payload.data
-            : payload && Array.isArray(payload.incidents)
+            : payload?.incidents
             ? payload.incidents
             : null;
           if (!list) {
@@ -584,7 +625,8 @@
       // render table and KPI cards
       function renderIncidents(incidents) {
         const baseList = Array.isArray(incidents) ? incidents : loadIncidents();
-        const all = filterIncidentsForCurrentUser(baseList);
+        const normalized = normalizeList(baseList);
+        const all = filterIncidentsForCurrentUser(normalized);
         tbody.innerHTML = "";
         all
           .slice()
@@ -834,7 +876,7 @@
         }
 
         // render local immediately
-        renderIncidents();
+        renderIncidents(loadIncidents());
 
         // try server
         const server = await fetchServerIncidents();
