@@ -176,21 +176,24 @@
           }
 
           try {
+            const payload = { email: pendingEmail, otp: code };
             const response = await fetch(
-              "http://localhost:3800/users/verify-otp",
+              "http://localhost:3800/users/verifyotp",
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: pendingEmail, otp: code }),
+                body: JSON.stringify(payload),
               }
             );
 
             if (!response.ok) {
               let errorMessage = "OTP verification failed.";
               try {
-                const error = await response.json();
-                errorMessage = error.message || errorMessage;
+                const raw = await response.text();
+                const parsed = raw ? JSON.parse(raw) : {};
+                errorMessage = parsed.message || raw || errorMessage;
               } catch (_) {}
+              console.error("OTP verify error:", errorMessage, payload);
               alert(errorMessage);
               return;
             }
