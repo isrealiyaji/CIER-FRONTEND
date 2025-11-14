@@ -72,6 +72,32 @@
           </button>
         </div>
       </form>
+      <form
+        id="otp-form"
+        class="hidden mt-4 space-y-4"
+        action="#"
+        method="POST"
+      >
+        <p class="text-sm text-gray-600">
+          Enter the 6-digit code we emailed to you.
+        </p>
+        <input
+          id="otp-code"
+          name="otp"
+          type="text"
+          inputmode="numeric"
+          maxlength="6"
+          required
+          class="block w-full px-3 py-2 text-gray-900 placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          placeholder="123456"
+        />
+        <button
+          type="submit"
+          class="w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          Verify OTP
+        </button>
+      </form>
       <p class="mt-2 text-sm text-center text-gray-600">
         Already have an account?
         <a
@@ -82,46 +108,100 @@
         </a>
       </p>
       <script>
-        document
-          .getElementById("register-form")
-          .addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const email = document.getElementById("email-address").value.trim();
-            const password = document.getElementById("password").value;
-            const confirm = document.getElementById("confirm-password").value;
+        const registerForm = document.getElementById("register-form");
+        const otpForm = document.getElementById("otp-form");
+        const otpInput = document.getElementById("otp-code");
+        let pendingEmail = "";
 
-            if (password.length < 6) {
-              alert("Password must be at least 6 characters.");
-              return;
-            }
-            if (password !== confirm) {
-              alert("Passwords do not match.");
-              return;
-            }
+        registerForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const email = document.getElementById("email-address").value.trim();
+          const password = document.getElementById("password").value;
+          const confirm = document.getElementById("confirm-password").value;
 
-            try {
-              const response = await fetch(
-                "http://localhost:3800/users/register",
-                {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ email, password }),
-                }
-              );
+          if (password.length < 6) {
+            alert("Password must be at least 6 characters.");
+            return;
+          }
+          if (password !== confirm) {
+            alert("Passwords do not match.");
+            return;
+          }
 
-              if (!response.ok) {
-                const error = await response.json();
-                alert(error.message || "Registration failed.");
-                return;
+          try {
+            const response = await fetch(
+              "http://localhost:3800/users/register",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
               }
+            );
 
-              alert("Registration successful. You can now sign in.");
-              window.location.href = "./login.html";
-            } catch (err) {
-              console.error(err);
-              alert("Unable to reach the server. Try again later.");
+            if (!response.ok) {
+              let errorMessage = "Registration failed.";
+              try {
+                const error = await response.json();
+                errorMessage = error.message || errorMessage;
+              } catch (_) {}
+
+              if (
+                response.status === 409 ||
+                errorMessage.toLowerCase().includes("exist")
+              ) {
+                alert("User already exists. Please sign in.");
+              } else {
+                alert(errorMessage);
+              }
+              return;
             }
-          });
+
+            pendingEmail = email;
+            registerForm.classList.add("hidden");
+            otpForm.classList.remove("hidden");
+            alert("We sent you a verification code. Enter it to continue.");
+          } catch (err) {
+            console.error(err);
+            alert("Unable to reach the server. Try again later.");
+          }
+        });
+
+        otpForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const code = otpInput.value.trim();
+
+          if (code.length !== 6) {
+            alert("Enter the 6-digit OTP.");
+            return;
+          }
+
+          try {
+            const response = await fetch(
+              "http://localhost:3800/users/verify-otp",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: pendingEmail, otp: code }),
+              }
+            );
+
+            if (!response.ok) {
+              let errorMessage = "OTP verification failed.";
+              try {
+                const error = await response.json();
+                errorMessage = error.message || errorMessage;
+              } catch (_) {}
+              alert(errorMessage);
+              return;
+            }
+
+            alert("Account verified successfully.");
+            window.location.href = "./dashboard.html";
+          } catch (err) {
+            console.error(err);
+            alert("Unable to verify OTP right now.");
+          }
+        });
       </script>
     </div>
   </body>
