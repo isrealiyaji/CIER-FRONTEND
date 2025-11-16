@@ -377,6 +377,7 @@
           <table>
             <thead>
               <tr>
+                <th>Description</th>
                 <th>Title</th>
                 <th>Type</th>
                 <th>Location</th>
@@ -501,8 +502,12 @@
             it.description ||
             report.description ||
             (typeof it.reportData === "string" ? it.reportData : "");
-          const incidentType =
-            (it.type || report.type || it.category || "General").toString();
+          const incidentType = (
+            it.type ||
+            report.type ||
+            it.category ||
+            "General"
+          ).toString();
 
           return {
             id: it.id || it._id || it.incidentId || `srv_${Date.now()}_${idx}`,
@@ -640,7 +645,8 @@
             const tr = document.createElement("tr");
             tr.dataset.id = item.id;
             tr.innerHTML = `
-            <td>${escapeHtml(item.title)}</td>
+            <td>${escapeHtml(item.description)}</td>
+            <td class="small">${escapeHtml(item.title)}</td>
             <td class="small">${escapeHtml(item.type)}</td>
             <td class="small">${escapeHtml(item.location)}</td>
             <td class="small">${escapeHtml(item.reporter)}</td>
