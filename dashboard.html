@@ -597,6 +597,15 @@
         return list.map((item, idx) => {
           const it = item && item.incident ? item.incident : item || {};
           const report = parseReportData(it.reportData);
+          const severityValue = (
+            it.severity ||
+            report.severity ||
+            it.sev ||
+            (report.details && report.details.severity) ||
+            "medium"
+          )
+            .toString()
+            .toLowerCase();
           const reporterSource =
             it.reportedBy ||
             it.reporter ||
@@ -626,7 +635,7 @@
               (description ? description.slice(0, 60) : "Untitled"),
             description,
             type: incidentType,
-            severity: (it.severity || it.sev || "medium").toLowerCase(),
+            severity: severityValue,
             location:
               it.location ||
               (it.latitude && it.longitude

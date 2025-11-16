@@ -969,8 +969,10 @@
           latitude: lastCoords?.latitude ?? null,
           longitude: lastCoords?.longitude ?? null,
           reportData: {
+            title,
             description,
             type: selectedType,
+            severity: document.getElementById("severity").value || "low",
           },
         };
 
