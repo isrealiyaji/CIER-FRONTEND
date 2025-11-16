@@ -448,8 +448,8 @@
           <table>
             <thead>
               <tr>
-                <th>Description</th>
                 <th>Title</th>
+                <th>Description</th>
                 <th>Type</th>
                 <th>Location</th>
                 <th>Reporter</th>
@@ -754,8 +754,8 @@
             const tr = document.createElement("tr");
             tr.dataset.id = item.id;
             tr.innerHTML = `
-            <td class="desc-cell">${escapeHtml(item.description)}</td>
             <td class="small">${escapeHtml(item.title)}</td>
+            <td class="desc-cell">${escapeHtml(item.description)}</td>
             <td class="small">${escapeHtml(item.type)}</td>
             <td class="small">${escapeHtml(item.location)}</td>
             <td class="small">${escapeHtml(item.reporter)}</td>
