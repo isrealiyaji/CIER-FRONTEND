@@ -736,77 +736,47 @@
         localStorage.setItem(INCIDENTS_KEY, JSON.stringify(list));
       }
 
+      const locationInput = document.getElementById("location");
+      const useLocationBtn = document.getElementById("use-location");
+      let lastCoords = null;
+
       async function reverseGeocode(lat, lon) {
-        try {
-          const url = `${NOMINATIM_ENDPOINT}?format=jsonv2&lat=${encodeURIComponent(
-            lat
-          )}&lon=${encodeURIComponent(lon)}`;
-          const res = await fetch(url, {
-            headers: { Accept: "application/json" },
-          });
-          if (!res.ok) return null;
-          const data = await res.json();
-          return data.display_name || null;
-        } catch {
-          return null;
-        }
+        const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
+        const res = await fetch(url, {
+          headers: { Accept: "application/json" },
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        return data.display_name || null;
       }
 
-      function setLocStatus(msg, isError = false) {
-        const el = document.getElementById("loc-status");
-        if (!el) return;
-        el.textContent = msg;
-        el.style.color = isError ? "var(--danger)" : "var(--muted)";
-      }
-
-      document.getElementById("use-location").addEventListener("click", () => {
-        const btn = document.getElementById("use-location");
+      useLocationBtn?.addEventListener("click", () => {
         if (!navigator.geolocation) {
-          setLocStatus("Geolocation not supported by this browser", true);
+          alert("Geolocation is not supported by this browser.");
           return;
         }
-        setLocStatus("Requesting location...");
-        btn.disabled = true;
+        useLocationBtn.disabled = true;
+        useLocationBtn.textContent = "Locating…";
         navigator.geolocation.getCurrentPosition(
           async (pos) => {
-            const lat = pos.coords.latitude;
-            const lon = pos.coords.longitude;
-            lastCoords = { latitude: lat, longitude: lon };
-            setLocStatus(
-              `Got coords: ${lat.toFixed(5)}, ${lon.toFixed(
-                5
-              )} — looking up address...`
-            );
-            const human = await reverseGeocode(lat, lon);
-            const locInput = document.getElementById("location");
-            if (human) {
-              locInput.value = human;
-              setLocStatus("Location filled from device (approximate).");
-            } else {
-              locInput.value = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
-              setLocStatus("Coordinates inserted (no address found).");
-            }
-            updatePreview();
-            btn.disabled = false;
+            const { latitude, longitude } = pos.coords;
+            lastCoords = { latitude, longitude };
+            const address =
+              (await reverseGeocode(latitude, longitude)) ||
+              `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+            locationInput.value = address;
+            useLocationBtn.textContent = "Use my location";
+            useLocationBtn.disabled = false;
           },
           (err) => {
-            btn.disabled = false;
-            if (err.code === 1)
-              setLocStatus(
-                "Permission denied. Allow location to use this feature.",
-                true
-              );
-            else if (err.code === 2)
-              setLocStatus("Position unavailable.", true);
-            else if (err.code === 3)
-              setLocStatus("Location request timed out.", true);
-            else setLocStatus("Could not get location: " + err.message, true);
+            console.error(err);
+            alert("Could not fetch your location.");
+            useLocationBtn.textContent = "Use my location";
+            useLocationBtn.disabled = false;
           },
-          { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+          { enableHighAccuracy: true, timeout: 10000 }
         );
       });
-
-      let lastCoords = null;
 
       const form = document.getElementById("report-form");
       const cancelBtn = document.getElementById("cancel");
