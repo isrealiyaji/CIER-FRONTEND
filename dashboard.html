@@ -468,43 +468,48 @@
         localStorage.setItem(INCIDENTS_KEY, JSON.stringify(normalized));
       }
 
+      function parseReportData(payload) {
+        if (!payload) return {};
+        if (typeof payload === "string") {
+          try {
+            return JSON.parse(payload);
+          } catch {
+            return { description: payload };
+          }
+        }
+        if (typeof payload === "object") return payload;
+        return {};
+      }
+
       // normalize server payload to expected shape
       function normalizeList(list) {
+        const user = getCurrentUser();
         return list.map((item, idx) => {
           const it = item && item.incident ? item.incident : item || {};
-          const reportDataObject =
-            it.reportData && typeof it.reportData === "object"
-              ? it.reportData
-              : null;
+          const report = parseReportData(it.reportData);
           const reporterSource =
             it.reportedBy ||
             it.reporter ||
             it.reporterEmail ||
             it.email ||
             it.user ||
+            user?.email ||
             "";
-          const reporterEmail = extractReporterEmail(reporterSource);
+          const reporterEmail =
+            extractReporterEmail(reporterSource) || user?.email || "anonymous";
           const description =
             it.description ||
-            (reportDataObject
-              ? reportDataObject.description
-              : typeof it.reportData === "string"
-              ? it.reportData
-              : "");
+            report.description ||
+            (typeof it.reportData === "string" ? it.reportData : "");
           const incidentType =
-            it.type ||
-            (reportDataObject ? reportDataObject.type : "") ||
-            it.category ||
-            "General";
+            (it.type || report.type || it.category || "General").toString();
 
           return {
             id: it.id || it._id || it.incidentId || `srv_${Date.now()}_${idx}`,
             title:
               it.title ||
-              (reportDataObject && reportDataObject.title) ||
-              (typeof it.reportData === "string"
-                ? it.reportData.slice(0, 60)
-                : "Untitled"),
+              report.title ||
+              (description ? description.slice(0, 60) : "Untitled"),
             description,
             type: incidentType,
             severity: (it.severity || it.sev || "medium").toLowerCase(),
@@ -513,7 +518,7 @@
               (it.latitude && it.longitude
                 ? `${it.latitude}, ${it.longitude}`
                 : it.address || ""),
-            reporter: reporterEmail || "anonymous",
+            reporter: reporterEmail,
             reporterMeta: reporterSource,
             status: (it.status || it.state || "open").toLowerCase(),
             createdAt:
@@ -522,7 +527,7 @@
               it.date ||
               new Date().toISOString(),
             resolvedAt: it.resolvedAt || it.resolved_at || null,
-            raw: it,
+            raw: { ...it, reportData: report },
           };
         });
       }
