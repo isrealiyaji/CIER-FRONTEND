@@ -41,7 +41,7 @@
                 <th
                   class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
                 >
-                  Reporter
+                  Reporter Email
                 </th>
                 <th
                   class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
@@ -51,7 +51,7 @@
                 <th
                   class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
                 >
-                  Status
+                  Description
                 </th>
                 <th
                   class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
@@ -268,7 +268,11 @@
 
           incidents.forEach((incident) => {
             const reportData = incident.reportData || {};
-            const location = incident.location || {};
+            const description = reportData.description || "No description provided";
+            const truncatedDescription = description.length > 50 
+              ? description.substring(0, 50) + "..." 
+              : description;
+            
             const tr = document.createElement("tr");
             tr.innerHTML = `
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">#${
@@ -277,17 +281,11 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${escapeHtml(
                 incident.reporter_email || "N/A"
               )}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">${escapeHtml(
+              <td class="px-6 py-4 text-sm text-gray-800 font-medium">${escapeHtml(
                 reportData.title || "No Title"
               )}</td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                  incident.status === "closed"
-                    ? "bg-green-100 text-green-800"
-                    : "bg-yellow-100 text-yellow-800"
-                }">
-                  ${escapeHtml(incident.status)}
-                </span>
+              <td class="px-6 py-4 text-sm text-gray-600" title="${escapeHtml(description)}">
+                ${escapeHtml(truncatedDescription)}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(
                 incident.created_at
