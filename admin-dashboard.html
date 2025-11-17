@@ -41,12 +41,12 @@
                 <th
                   class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
                 >
-                  User ID
+                  Reporter
                 </th>
                 <th
                   class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
                 >
-                  Description
+                  Title
                 </th>
                 <th
                   class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
@@ -65,68 +65,11 @@
                 </th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
-              <!-- Example Row 1 -->
+            <tbody id="incidents-tbody" class="divide-y divide-gray-200">
+              <!-- Incident rows will be dynamically inserted here -->
               <tr>
-                <td class="px-6 py-4 whitespace-nowrap">#1024</td>
-                <td class="px-6 py-4 whitespace-nowrap">user-5</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  Loud noise complaint at apartment 3B.
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span
-                    class="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full"
-                    >Resolved</span
-                  >
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">2023-10-26</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <button class="text-indigo-600 hover:text-indigo-900">
-                    View Details
-                  </button>
-                </td>
-              </tr>
-              <!-- Example Row 2 -->
-              <tr>
-                <td class="px-6 py-4 whitespace-nowrap">#1023</td>
-                <td class="px-6 py-4 whitespace-nowrap">user-8</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  Suspicious vehicle parked on Oak Street.
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <select class="p-1 text-xs border-gray-300 rounded-md">
-                    <option class="bg-blue-100">Reported</option>
-                    <option selected class="bg-yellow-100">
-                      Under Investigation
-                    </option>
-                    <option class="bg-green-100">Resolved</option>
-                  </select>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">2023-10-25</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <button class="text-indigo-600 hover:text-indigo-900">
-                    View Details
-                  </button>
-                </td>
-              </tr>
-              <!-- Example Row 3 -->
-              <tr>
-                <td class="px-6 py-4 whitespace-nowrap">#1021</td>
-                <td class="px-6 py-4 whitespace-nowrap">user-2</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  Broken streetlight at the park entrance.
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span
-                    class="inline-flex px-2 text-xs font-semibold leading-5 text-blue-800 bg-blue-100 rounded-full"
-                    >Reported</span
-                  >
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">2023-10-24</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <button class="text-indigo-600 hover:text-indigo-900">
-                    View Details
-                  </button>
+                <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                  Loading incidents...
                 </td>
               </tr>
             </tbody>
@@ -166,61 +109,7 @@
             <tbody class="divide-y divide-gray-200">
               <!-- Example User 1 -->
               <tr>
-                <td class="px-6 py-4 whitespace-nowrap">user-1</td>
-                <td class="px-6 py-4 whitespace-nowrap">admin@cier.com</td>
-                <td class="px-6 py-4 whitespace-nowrap">Admin</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  N/A
-                </td>
-              </tr>
-              <!-- Example User 2 -->
-              <tr>
-                <td class="px-6 py-4 whitespace-nowrap">user-2</td>
-                <td class="px-6 py-4 whitespace-nowrap">responder@cier.com</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <select class="p-1 text-xs border-gray-300 rounded-md">
-                    <option>User</option>
-                    <option selected>Responder</option>
-                    <option>Admin</option>
-                  </select>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <button
-                    class="px-3 py-1 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
-                  >
-                    Save
-                  </button>
-                </td>
-              </tr>
-              <!-- Example User 3 -->
-              <tr>
-                <td class="px-6 py-4 whitespace-nowrap">user-3</td>
-                <td class="px-6 py-4 whitespace-nowrap">citizen@example.com</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <select class="p-1 text-xs border-gray-300 rounded-md">
-                    <option selected>User</option>
-                    <option>Responder</option>
-                    <option>Admin</option>
-                  </select>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <button
-                    class="px-3 py-1 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
-                  >
-                    Save
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Assign Response Team Account -->
-      <div class="p-6 bg-white rounded-lg shadow-md">
-        <h2 class="mb-4 text-2xl font-bold text-gray-800">
-          Assign Response Team Account
-        </h2>
+                <td class="px-6 py-4 whitespace-nowrap">user-1</td
         <form id="create-response-user" class="space-y-4">
           <div>
             <label
@@ -321,72 +210,184 @@
       </div>
     </main>
     <script>
-            document
-              .getElementById("create-response-user")
-              ?.addEventListener("submit", async (event) => {
-                event.preventDefault();
-                const form = event.currentTarget;
-                const feedback = document.getElementById("response-feedback");
-                const roleValue =
-                  form.role.value === "more"
-                    ? form.roleCustom.value.trim()
-                    : form.role.value;
+      document.addEventListener("DOMContentLoaded", () => {
+        const API_URL = "http://localhost:3800/incidents/all";
+        const incidentsTableBody = document.getElementById("incidents-tbody");
 
-                if (!roleValue) {
-                  feedback.textContent = "Please provide a response team name.";
-                  feedback.className = "text-sm text-red-600";
-                  return;
-                }
+        function getAuthToken() {
+          return (
+            localStorage.getItem("cierAuthToken") ||
+            localStorage.getItem("token")
+          );
+        }
 
-                 const payload = {
-                   name: form.name.value.trim(),
-                   email: form.email.value.trim(),
-      -            role: form.role.value,
-      +            role: roleValue,
-                   password: form.password.value,
-                 };
-                try {
-                  const res = await fetch(
-                    "http://localhost:3800/users/admin/create",
-                    {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify(payload),
-                    }
-                  );
-                  if (!res.ok) {
-                    throw new Error(
-                      (await res.json()).error || "Failed to create user"
-                    );
-                  }
-                  feedback.textContent = "Responder account created successfully.";
-                  feedback.className = "text-sm text-green-600";
-                  form.reset();
-                } catch (error) {
-                  feedback.textContent = error.message || "Unable to create account.";
-                  feedback.className = "text-sm text-red-600";
-                }
-              });
+        function escapeHtml(unsafe) {
+          return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+        }
 
-            const roleSelect = document.getElementById("response-role");
-            const customWrapper = document.getElementById(
-              "response-role-custom-wrapper"
-            );
-            const customInput = document.getElementById("response-role-custom");
+        async function fetchAllIncidents() {
+          const token = getAuthToken();
+          if (!token) {
+            alert("Authentication token not found. Redirecting to login.");
+            window.location.href = "/login.html";
+            return;
+          }
 
-            const toggleCustomRole = () => {
-              const useCustom = roleSelect.value === "more";
-              customWrapper.classList.toggle("hidden", !useCustom);
-              customInput.disabled = !useCustom;
-              if (!useCustom) {
-                customInput.value = "";
-              } else {
-                customInput.focus();
+          try {
+            const response = await fetch(API_URL, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            });
+
+            if (!response.ok) {
+              throw new Error(`Failed to fetch incidents: ${response.status}`);
+            }
+
+            const incidents = await response.json();
+            renderIncidents(incidents);
+          } catch (error) {
+            console.error("Error fetching incidents:", error);
+            incidentsTableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-center text-red-500">Error loading incidents. Please try again later.</td></tr>`;
+          }
+        }
+
+        function renderIncidents(incidents) {
+          if (!incidents || incidents.length === 0) {
+            incidentsTableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">No incidents found.</td></tr>`;
+            return;
+          }
+
+          incidentsTableBody.innerHTML = ""; // Clear loading/error message
+
+          incidents.forEach((incident) => {
+            const reportData = incident.reportData || {};
+            const location = incident.location || {};
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">#${
+                incident.id
+              }</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${escapeHtml(
+                incident.reporter_email || "N/A"
+              )}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">${escapeHtml(
+                reportData.title || "No Title"
+              )}</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                  incident.status === "closed"
+                    ? "bg-green-100 text-green-800"
+                    : "bg-yellow-100 text-yellow-800"
+                }">
+                  ${escapeHtml(incident.status)}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(
+                incident.created_at
+              ).toLocaleDateString()}</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <button onclick="viewIncidentDetails(${
+                  incident.id
+                })" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
+                  View Details
+                </button>
+              </td>
+            `;
+            incidentsTableBody.appendChild(tr);
+          });
+        }
+
+        function viewIncidentDetails(incidentId) {
+          // Store the incident ID and redirect to a details page
+          // Or open a modal with full incident information
+          alert(`Viewing details for incident #${incidentId}`);
+          // You can implement a modal or redirect to a details page here
+        }
+
+        // Initial fetch
+        fetchAllIncidents();
+
+        // Auto-refresh every 30 seconds
+        setInterval(fetchAllIncidents, 30000);
+      });
+
+      // --- Existing script for creating response user ---
+      document
+        .getElementById("create-response-user")
+        ?.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const formData = new FormData(event.target);
+          const name = formData.get("name");
+          const email = formData.get("email");
+          let role = formData.get("role");
+          const roleCustom = formData.get("roleCustom");
+          const password = formData.get("password");
+          const feedback = document.getElementById("response-feedback");
+
+          if (role === "more" && roleCustom) {
+            role = roleCustom;
+          }
+
+          feedback.textContent = "Creating account...";
+          feedback.className = "text-sm text-gray-600";
+
+          try {
+            const token =
+              localStorage.getItem("cierAuthToken") ||
+              localStorage.getItem("token");
+            const response = await fetch(
+              "http://localhost:3800/auth/register-response-user",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ name, email, role, password }),
               }
-            };
+            );
 
-            roleSelect?.addEventListener("change", toggleCustomRole);
-            toggleCustomRole();
+            const data = await response.json();
+
+            if (response.ok) {
+              feedback.textContent = `✓ Account created for ${email}`;
+              feedback.className = "text-sm text-green-600";
+              event.target.reset();
+              toggleCustomRole();
+            } else {
+              feedback.textContent = `Error: ${
+                data.error || "Failed to create account"
+              }`;
+              feedback.className = "text-sm text-red-600";
+            }
+          } catch (error) {
+            feedback.textContent = `Network error: ${error.message}`;
+            feedback.className = "text-sm text-red-600";
+          }
+        });
+
+      const responseRoleSelect = document.getElementById("response-role");
+      const responseRoleCustomWrapper = document.getElementById(
+        "response-role-custom-wrapper"
+      );
+
+      function toggleCustomRole() {
+        if (responseRoleSelect.value === "more") {
+          responseRoleCustomWrapper.classList.remove("hidden");
+        } else {
+          responseRoleCustomWrapper.classList.add("hidden");
+        }
+      }
+
+      responseRoleSelect?.addEventListener("change", toggleCustomRole);
+      toggleCustomRole();
     </script>
   </body>
 </html>

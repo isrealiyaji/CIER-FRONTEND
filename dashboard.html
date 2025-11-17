@@ -537,6 +537,7 @@
       const CURRENT_USER_KEY = "cierCurrentUser";
       const LEGACY_USER_KEY = "currentUser";
       const API_INCIDENTS = "http://localhost:3800/incidents/myincidents";
+      const API_INCIDENTS_PUT = "http://localhost:3800/incidents";
       const POLL_INTERVAL = 60000;
 
       // DOM refs
@@ -551,6 +552,22 @@
       const refreshBtn = document.getElementById("refresh-server");
       const logoutBtn = document.getElementById("logout-button");
       const currentUserEl = document.getElementById("current-user");
+
+      // Modal DOM refs
+      const modal = document.getElementById("incident-modal");
+      const modalTitle = document.getElementById("incident-modal-title");
+      const modalMeta = document.getElementById("incident-modal-meta");
+      const modalDescription = document.getElementById(
+        "incident-modal-description"
+      );
+      const modalAttachments = document.getElementById(
+        "incident-modal-attachments"
+      );
+      const modalCloseBtn = document.getElementById("incident-modal-close");
+      const modalBackdrop = document.getElementById("incident-modal-backdrop");
+      const modalToggleBtn = document.getElementById("incident-modal-toggle");
+
+      let currentIncidentId = null;
 
       // charts
       let lineChart = null;
@@ -788,7 +805,7 @@
             }">${escapeHtml(item.status)}</span></td>
           `;
             tr.style.cursor = "pointer";
-            tr.addEventListener("click", () => toggleStatus(item.id));
+            tr.addEventListener("click", () => showIncidentDetails(item.id));
             tbody.appendChild(tr);
           });
 
@@ -840,9 +857,57 @@
         updateCharts(all);
       }
 
+      function showIncidentDetails(id) {
+        const incidents = window.__lastServerIncidents || loadIncidents();
+        const incident = incidents.find((i) => i.id === id);
+        if (!incident) return;
+
+        currentIncidentId = id;
+        modalTitle.textContent = incident.title;
+        modalDescription.textContent = incident.description;
+
+        modalMeta.innerHTML = `
+          <div><span>Status</span> ${escapeHtml(incident.status)}</div>
+          <div><span>Severity</span> ${escapeHtml(incident.severity)}</div>
+          <div><span>Type</span> ${escapeHtml(incident.type)}</div>
+          <div><span>Location</span> ${escapeHtml(
+            stringifyLocation(incident.location)
+          )}</div>
+          <div><span>Reporter</span> ${escapeHtml(incident.reporter)}</div>
+          <div><span>Reported</span> ${new Date(
+            incident.createdAt
+          ).toLocaleString()}</div>
+        `;
+
+        modalAttachments.innerHTML = ""; // Clear previous attachments
+        const attachments = incident.raw?.attachmentsMeta || [];
+        if (attachments.length > 0) {
+          attachments.forEach((att) => {
+            const el = document.createElement("div");
+            el.className = "attachment-item";
+            el.textContent = `${att.name} (${(att.size / 1024).toFixed(1)} KB)`;
+            modalAttachments.appendChild(el);
+          });
+        } else {
+          modalAttachments.innerHTML = `<div class="small">No attachments uploaded.</div>`;
+        }
+
+        modalToggleBtn.textContent = `Mark as ${
+          incident.status === "closed" ? "Open" : "Closed"
+        }`;
+        modal.classList.add("open");
+        modal.setAttribute("aria-hidden", "false");
+      }
+
+      function closeIncidentModal() {
+        modal.classList.remove("open");
+        modal.setAttribute("aria-hidden", "true");
+        currentIncidentId = null;
+      }
+
       // toggle status on click -> optimistic UI + server update
       async function toggleStatus(id) {
-        const list = loadIncidents();
+        const list = window.__lastServerIncidents || loadIncidents();
         const idx = list.findIndex((i) => i.id === id);
         if (idx === -1) return;
         const item = list[idx];
@@ -851,16 +916,21 @@
           return;
         // optimistic
         const original = { ...item };
-        list[idx].status = newStatus;
+        const updatedList = [...list];
+        updatedList[idx] = { ...item, status: newStatus };
         if (newStatus === "closed")
-          list[idx].resolvedAt = new Date().toISOString();
-        else list[idx].resolvedAt = null;
-        saveIncidents(list);
-        renderIncidents();
+          updatedList[idx].resolvedAt = new Date().toISOString();
+        else updatedList[idx].resolvedAt = null;
+
+        saveIncidents(updatedList);
+        renderIncidents(updatedList);
+        closeIncidentModal();
 
         // attempt server update
         try {
-          const token = localStorage.getItem("token");
+          const token =
+            localStorage.getItem("cierAuthToken") ||
+            localStorage.getItem("token");
           const url = `${API_INCIDENTS_PUT}/${encodeURIComponent(id)}`;
           const res = await fetch(url, {
             method: "PUT",
@@ -873,34 +943,13 @@
           if (!res.ok) {
             throw new Error("Server returned " + res.status);
           }
-          // update succeeded - optionally replace local item with server returned object
-          const text = await res.text();
-          try {
-            const body = JSON.parse(text);
-            if (body && body.id) {
-              // merge returned
-              const fresh = normalizeList([body])[0];
-              const current = loadIncidents();
-              const i = current.findIndex((x) => x.id === id);
-              if (i !== -1) {
-                current.splice(i, 1, { ...current[i], ...fresh });
-                saveIncidents(current);
-                renderIncidents();
-              }
-            }
-          } catch {
-            /* ignore non-json */
-          }
+          // update succeeded, fetch fresh list
+          await fetchServerIncidents();
         } catch (err) {
           // revert on error
           console.warn("Could not update server, reverted locally.", err);
-          const current = loadIncidents();
-          const i = current.findIndex((x) => x.id === id);
-          if (i !== -1) {
-            current.splice(i, 1, original);
-            saveIncidents(current);
-            renderIncidents();
-          }
+          saveIncidents(list); // Revert to original list
+          renderIncidents(list);
           alert("Could not update status on server. Changes reverted locally.");
         }
       }
@@ -1046,9 +1095,19 @@
         logoutBtn.addEventListener("click", () => {
           try {
             localStorage.removeItem("token");
+            localStorage.removeItem(CURRENT_USER_KEY);
+            localStorage.removeItem(LEGACY_USER_KEY);
           } catch {}
           window.location.href = "./login.html";
         });
+
+      modalCloseBtn?.addEventListener("click", closeIncidentModal);
+      modalBackdrop?.addEventListener("click", closeIncidentModal);
+      modalToggleBtn?.addEventListener("click", () => {
+        if (currentIncidentId) {
+          toggleStatus(currentIncidentId);
+        }
+      });
 
       // start
       init();
