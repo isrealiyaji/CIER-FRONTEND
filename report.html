@@ -705,8 +705,9 @@
       const INCIDENTS_KEY = "cier_incidents";
       const CURRENT_USER_KEY = "cierCurrentUser";
       const LEGACY_USER_KEY = "currentUser";
-      const NOMINATIM_ENDPOINT = "https://nominatim.openstreetmap.org/reverse";
       const API_INCIDENTS = "http://localhost:3800/incidents/";
+      const API_REVERSE_GEOCODE =
+        "http://localhost:3800/incidents/reverse-geocode";
 
       const incidentTypeSelect = document.getElementById("incident-type");
       const incidentTypeOther = document.getElementById("incident-type-other");
@@ -738,16 +739,41 @@
 
       const locationInput = document.getElementById("location");
       const useLocationBtn = document.getElementById("use-location");
+      const locStatus = document.getElementById("loc-status");
       let lastCoords = null;
+      let lastAddress = "";
 
       async function reverseGeocode(lat, lon) {
-        const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
-        const res = await fetch(url, {
-          headers: { Accept: "application/json" },
-        });
-        if (!res.ok) return null;
-        const data = await res.json();
-        return data.display_name || null;
+        try {
+          const token =
+            localStorage.getItem("cierAuthToken") ||
+            localStorage.getItem("token");
+          // Ensure lat/lon are sent as numbers
+          const url = new URL(API_REVERSE_GEOCODE);
+          url.searchParams.append("latitude", Number(lat));
+          url.searchParams.append("longitude", Number(lon));
+
+          const res = await fetch(url.toString(), {
+            headers: {
+              Accept: "application/json",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+          });
+
+          if (!res.ok) {
+            console.error(
+              "Reverse geocode request failed:",
+              res.status,
+              await res.text()
+            );
+            return null;
+          }
+          const data = await res.json();
+          return data.address || null;
+        } catch (err) {
+          console.error("Reverse geocode fetch error:", err);
+          return null;
+        }
       }
 
       useLocationBtn?.addEventListener("click", () => {
@@ -756,25 +782,51 @@
           return;
         }
         useLocationBtn.disabled = true;
-        useLocationBtn.textContent = "Locating…";
+        useLocationBtn.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" style="width: 1em; height: 1em; animation: spin 1s linear infinite;"><path d="M12 2v3m0 14v3m-7.1-14.1l2.1 2.1m10 10l2.1 2.1M2 12h3m14 0h3m-2.1-7.1l-2.1 2.1m-10 10l-2.1 2.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          Locating…`;
+        locStatus.textContent = "Fetching your current position…";
+
         navigator.geolocation.getCurrentPosition(
           async (pos) => {
             const { latitude, longitude } = pos.coords;
             lastCoords = { latitude, longitude };
-            const address =
-              (await reverseGeocode(latitude, longitude)) ||
-              `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
-            locationInput.value = address;
-            useLocationBtn.textContent = "Use my location";
+
+            locStatus.textContent = "Coordinates found. Looking up address...";
+
+            let address = await reverseGeocode(latitude, longitude);
+
+            if (address) {
+              locStatus.textContent = `Location found: ${address.substring(
+                0,
+                50
+              )}...`;
+              lastAddress = address;
+              locationInput.value = address;
+            } else {
+              address = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+              locStatus.textContent =
+                "Could not find a street address. Using coordinates.";
+              lastAddress = address;
+              locationInput.value = address;
+            }
+
+            updatePreview();
+            useLocationBtn.innerHTML = `
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M12 19v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M4.9 4.9l2.1 2.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M17 17l2.1 2.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M2 12h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M19 12h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M4.9 19.1l2.1-2.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M17 7l2.1-2.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5" fill="rgba(255,255,255,0.05)" /></svg>
+              Use my location`;
             useLocationBtn.disabled = false;
           },
           (err) => {
-            console.error(err);
-            alert("Could not fetch your location.");
-            useLocationBtn.textContent = "Use my location";
+            console.error("Geolocation error:", err);
+            alert(
+              "Could not fetch your location. Please check your browser's location permissions for this site."
+            );
+            locStatus.textContent = "Location access failed.";
+            useLocationBtn.innerHTML = `...`; // Reset button text
             useLocationBtn.disabled = false;
           },
-          { enableHighAccuracy: true, timeout: 10000 }
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
         );
       });
 
@@ -917,11 +969,18 @@
           return sel;
         })();
 
+        const locationText = locationInput.value.trim();
+        const locationPayload = {
+          address: locationText || lastAddress || "",
+          latitude: lastCoords?.latitude ?? null,
+          longitude: lastCoords?.longitude ?? null,
+        };
+
         const prepared = {
-          id: "i_" + Date.now(),
+          id: "local_" + Date.now(),
           title,
           description,
-          location: document.getElementById("location").value.trim(),
+          location: locationPayload,
           reporter: currentUser?.email || "anonymous",
           reportedBy: currentUser?.email || "anonymous",
           type: selectedType,
@@ -936,16 +995,18 @@
                 type: file.type,
               }))
             : [],
-          latitude: lastCoords?.latitude ?? null,
-          longitude: lastCoords?.longitude ?? null,
+          latitude: locationPayload.latitude,
+          longitude: locationPayload.longitude,
           reportData: {
             title,
             description,
             type: selectedType,
             severity: document.getElementById("severity").value || "low",
+            location: locationPayload,
           },
         };
 
+        // Temporarily save to local storage for offline fallback
         const localList = loadIncidents();
         localList.unshift(prepared);
         saveIncidents(localList);
@@ -953,7 +1014,9 @@
         updateChart();
 
         try {
-          const token = localStorage.getItem("token");
+          const token =
+            localStorage.getItem("cierAuthToken") ||
+            localStorage.getItem("token");
           const res = await fetch(API_INCIDENTS, {
             method: "POST",
             headers: {
@@ -961,14 +1024,6 @@
               ...(token ? { Authorization: "Bearer " + token } : {}),
             },
             body: JSON.stringify({
-              title: prepared.title,
-              description: prepared.description,
-              location: prepared.location,
-              reportedBy: prepared.reportedBy,
-              type: prepared.type,
-              status: prepared.status,
-              severity: prepared.severity,
-              attachments: prepared.attachmentsMeta,
               reportData: prepared.reportData,
               latitude: prepared.latitude,
               longitude: prepared.longitude,
@@ -984,41 +1039,44 @@
           }
 
           if (res.ok) {
-            const incident = parsedBody;
-            const merged = {
-              ...incident,
-              title: incident.title || prepared.title,
-              description:
-                incident.description ||
-                (incident.reportData && incident.reportData.description) ||
-                prepared.description,
-              type:
-                incident.type ||
-                (incident.reportData && incident.reportData.type) ||
-                prepared.type,
-              severity: incident.severity || prepared.severity,
-              location: incident.location || prepared.location,
-              reportedBy: incident.reportedBy || prepared.reportedBy,
-              status: incident.status || "open",
-              createdAt: incident.createdAt || new Date().toISOString(),
-              latitude: incident.latitude ?? incident.lat ?? prepared.latitude,
-              longitude:
-                incident.longitude ?? incident.lng ?? prepared.longitude,
-              reportData: incident.reportData || prepared.reportData,
+            // Server returns { id, status, created_at }
+            const serverIncident = parsedBody;
+
+            // Create the final incident object for storage
+            const finalIncident = {
+              ...prepared, // Start with all the frontend data
+              id: serverIncident.id, // Overwrite with the real ID from the server
+              status: serverIncident.status,
+              createdAt: serverIncident.created_at,
+              // The backend now handles address resolution, so we trust the reportData it stored
+              reportData: {
+                ...prepared.reportData,
+                location: {
+                  ...prepared.reportData.location,
+                  // The actual resolved address is now inside the encrypted data on the backend
+                  // The frontend will get it back when it fetches /myincidents
+                },
+              },
             };
 
-            const stored =
-              JSON.parse(localStorage.getItem("cier_incidents") || "[]") || [];
-            stored.unshift(merged);
-            localStorage.setItem("cier_incidents", JSON.stringify(stored));
+            // Replace the temporary local incident with the final one
+            const stored = loadIncidents();
+            const tempIndex = stored.findIndex((i) => i.id === prepared.id);
+            if (tempIndex !== -1) {
+              stored[tempIndex] = finalIncident;
+            } else {
+              stored.unshift(finalIncident);
+            }
+            saveIncidents(stored);
             window.location.href = "./dashboard.html";
           } else {
             console.error("Server error:", res.status, parsedBody);
             alert(
               `Saved locally but server returned error ${res.status}: ${
-                parsedBody && parsedBody.error
-                  ? parsedBody.error
-                  : JSON.stringify(parsedBody)
+                (parsedBody && parsedBody.error) ||
+                (parsedBody.errors &&
+                  parsedBody.errors.map((e) => e.msg).join(", ")) ||
+                JSON.stringify(parsedBody)
               }`
             );
             window.location.href = "./dashboard.html";

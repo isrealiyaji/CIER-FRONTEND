@@ -667,6 +667,18 @@
         }
       }
 
+      function stringifyLocation(location) {
+        if (!location) return "No location";
+        if (typeof location === "string") return location;
+        if (location.address) return location.address;
+        if (location.latitude && location.longitude) {
+          return `${Number(location.latitude).toFixed(4)}, ${Number(
+            location.longitude
+          ).toFixed(4)}`;
+        }
+        return "N/A";
+      }
+
       function extractReporterEmail(value) {
         if (!value) return "";
         if (typeof value === "string") return value;
@@ -766,7 +778,9 @@
             <td class="small">${escapeHtml(item.title)}</td>
             <td class="desc-cell">${escapeHtml(item.description)}</td>
             <td class="small">${escapeHtml(item.type)}</td>
-            <td class="small">${escapeHtml(item.location)}</td>
+            <td class="small">${escapeHtml(
+              stringifyLocation(item.location)
+            )}</td>
             <td class="small">${escapeHtml(item.reporter)}</td>
             <td class="small">${new Date(item.createdAt).toLocaleString()}</td>
             <td><span class="status ${
