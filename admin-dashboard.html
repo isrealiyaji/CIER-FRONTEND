@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard - CIER</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Fallback styles while Tailwind loads */
+      body { font-family: system-ui, -apple-system, sans-serif; }
+    </style>
   </head>
   <body class="bg-gray-100">
     <!-- Header -->
@@ -209,10 +213,91 @@
         </form>
       </div>
     </main>
+
+    <!-- Incident Detail Modal -->
+    <div id="incident-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" style="display: none;">
+      <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="p-6 border-b border-gray-200">
+          <div class="flex justify-between items-center">
+            <h2 id="modal-title" class="text-2xl font-bold text-gray-900">Incident Details</h2>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+          </div>
+        </div>
+        
+        <div class="p-6">
+          <!-- Incident Information -->
+          <div class="grid grid-cols-2 gap-4 mb-6">
+            <div>
+              <label class="text-sm font-semibold text-gray-600">Incident ID</label>
+              <p id="modal-id" class="text-gray-900"></p>
+            </div>
+            <div>
+              <label class="text-sm font-semibold text-gray-600">Status</label>
+              <p id="modal-status" class="text-gray-900"></p>
+            </div>
+            <div>
+              <label class="text-sm font-semibold text-gray-600">Reporter Email</label>
+              <p id="modal-reporter" class="text-gray-900"></p>
+            </div>
+            <div>
+              <label class="text-sm font-semibold text-gray-600">Date Reported</label>
+              <p id="modal-date" class="text-gray-900"></p>
+            </div>
+            <div>
+              <label class="text-sm font-semibold text-gray-600">Incident Type</label>
+              <p id="modal-type" class="text-gray-900"></p>
+            </div>
+            <div>
+              <label class="text-sm font-semibold text-gray-600">Severity</label>
+              <p id="modal-severity" class="text-gray-900"></p>
+            </div>
+            <div class="col-span-2">
+              <label class="text-sm font-semibold text-gray-600">Location</label>
+              <p id="modal-location" class="text-gray-900"></p>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="mb-6">
+            <label class="text-sm font-semibold text-gray-600">Description</label>
+            <p id="modal-description" class="text-gray-900 mt-2"></p>
+          </div>
+
+          <!-- Recommended Response Team -->
+          <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <label class="text-sm font-semibold text-blue-900">Recommended Response Team</label>
+            <p id="modal-team" class="text-blue-900 mt-2 font-medium"></p>
+          </div>
+
+          <!-- Attachments -->
+          <div class="mb-6">
+            <label class="text-sm font-semibold text-gray-600">Attachments</label>
+            <div id="modal-attachments" class="mt-2 grid grid-cols-3 gap-4">
+              <!-- Images will be inserted here -->
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex justify-end gap-3">
+            <button onclick="assignTeam()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+              Assign Team
+            </button>
+            <button onclick="updateStatus()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+              Update Status
+            </button>
+            <button onclick="closeModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const API_URL = "http://localhost:3800/incidents/all";
         const incidentsTableBody = document.getElementById("incidents-tbody");
+        let allIncidents = []; // Store all incidents globally
 
         function getAuthToken() {
           return (
@@ -222,12 +307,29 @@
         }
 
         function escapeHtml(unsafe) {
+          if (!unsafe) return "";
           return unsafe
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
+        }
+
+        // Determine response team based on incident type
+        function getResponseTeam(incidentType) {
+          const type = (incidentType || "").toLowerCase();
+          const teamMapping = {
+            fire: "Fire Department & Emergency Response Team",
+            flood: "Flood Response & Disaster Management Team",
+            theft: "Security & Law Enforcement Team",
+            safety: "Safety & Health Department",
+            it_outage: "IT Support & Technical Team",
+            medical: "Medical Emergency & First Aid Team",
+            environmental: "Environmental Health & Safety Team",
+            other: "General Response Team",
+          };
+          return teamMapping[type] || "General Response Team";
         }
 
         async function fetchAllIncidents() {
@@ -251,6 +353,7 @@
             }
 
             const incidents = await response.json();
+            allIncidents = incidents; // Store globally
             renderIncidents(incidents);
           } catch (error) {
             console.error("Error fetching incidents:", error);
@@ -264,32 +367,51 @@
             return;
           }
 
-          incidentsTableBody.innerHTML = ""; // Clear loading/error message
+          incidentsTableBody.innerHTML = "";
 
           incidents.forEach((incident) => {
             const reportData = incident.reportData || {};
-            const description = reportData.description || "No description provided";
-            const truncatedDescription = description.length > 50 
-              ? description.substring(0, 50) + "..." 
-              : description;
-            
+            const description =
+              reportData.description || "No description provided";
+            const truncatedDescription =
+              description.length > 50
+                ? description.substring(0, 50) + "..."
+                : description;
+
+            let formattedDate = "N/A";
+            const dateValue = incident.createdAt || incident.created_at;
+
+            if (dateValue) {
+              const dateObj = new Date(dateValue);
+              if (!isNaN(dateObj.getTime())) {
+                formattedDate = dateObj.toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                });
+              }
+            }
+
             const tr = document.createElement("tr");
             tr.innerHTML = `
+
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">#${
                 incident.id
               }</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${escapeHtml(
-                incident.reporter_email || "N/A"
+                incident.reporterEmail || incident.reporter_email || "N/A"
               )}</td>
               <td class="px-6 py-4 text-sm text-gray-800 font-medium">${escapeHtml(
                 reportData.title || "No Title"
               )}</td>
-              <td class="px-6 py-4 text-sm text-gray-600" title="${escapeHtml(description)}">
+              <td class="px-6 py-4 text-sm text-gray-600" title="${escapeHtml(
+                description
+              )}">
                 ${escapeHtml(truncatedDescription)}
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(
-                incident.created_at
-              ).toLocaleDateString()}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formattedDate}</td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <button onclick="viewIncidentDetails(${
                   incident.id
@@ -302,12 +424,101 @@
           });
         }
 
-        function viewIncidentDetails(incidentId) {
-          // Store the incident ID and redirect to a details page
-          // Or open a modal with full incident information
-          alert(`Viewing details for incident #${incidentId}`);
-          // You can implement a modal or redirect to a details page here
-        }
+        window.viewIncidentDetails = function (incidentId) {
+          const incident = allIncidents.find((i) => i.id === incidentId);
+          if (!incident) {
+            alert("Incident not found");
+            return;
+          }
+
+          const reportData = incident.reportData || {};
+          const location = incident.location || {};
+
+          // Populate modal
+          document.getElementById("modal-title").textContent =
+            reportData.title || "Untitled Incident";
+          document.getElementById("modal-id").textContent = `#${incident.id}`;
+          document.getElementById("modal-status").textContent =
+            incident.status || "Unknown";
+          document.getElementById("modal-reporter").textContent =
+            incident.reporterEmail || incident.reporter_email || "N/A";
+
+          const dateValue = incident.createdAt || incident.created_at;
+          let formattedDate = "N/A";
+          if (dateValue) {
+            const dateObj = new Date(dateValue);
+            if (!isNaN(dateObj.getTime())) {
+              formattedDate = dateObj.toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+            }
+          }
+          document.getElementById("modal-date").textContent = formattedDate;
+
+          document.getElementById("modal-type").textContent =
+            reportData.type || "N/A";
+          document.getElementById("modal-severity").textContent =
+            reportData.severity || "N/A";
+          document.getElementById("modal-location").textContent =
+            location.address || "N/A";
+          document.getElementById("modal-description").textContent =
+            reportData.description || "No description provided";
+
+          // Response team recommendation
+          document.getElementById("modal-team").textContent = getResponseTeam(
+            reportData.type
+          );
+
+          // Attachments
+          const attachmentsDiv = document.getElementById("modal-attachments");
+          attachmentsDiv.innerHTML = "";
+
+          const attachments =
+            reportData.attachments || incident.attachments || [];
+          if (attachments.length > 0) {
+            attachments.forEach((att) => {
+              const img = document.createElement("img");
+              img.src = att.url || att;
+              img.alt = att.name || "Incident image";
+              img.className =
+                "w-full h-32 object-cover rounded-lg border border-gray-300";
+              img.onclick = () => window.open(img.src, "_blank");
+              attachmentsDiv.appendChild(img);
+            });
+          } else {
+            attachmentsDiv.innerHTML =
+              '<p class="text-gray-500 text-sm">No attachments available</p>';
+          }
+
+          // Show modal
+          document.getElementById("incident-modal").style.display = "flex";
+          document.getElementById("incident-modal").classList.remove("hidden");
+        };
+
+        window.closeModal = function () {
+          document.getElementById("incident-modal").style.display = "none";
+          document.getElementById("incident-modal").classList.add("hidden");
+        };
+
+        window.assignTeam = function () {
+          const team = document.getElementById("modal-team").textContent;
+          alert(`Assigning incident to: ${team}\n\nThis feature will notify the team.`);
+          // Implement team assignment logic here
+        };
+
+        window.updateStatus = function () {
+          const currentStatus = document.getElementById("modal-status").textContent;
+          const newStatus = currentStatus === "open" ? "closed" : "open";
+          
+          if (confirm(`Change status from "${currentStatus}" to "${newStatus}"?`)) {
+            alert(`Status updated to: ${newStatus}\n\nThis will sync with the backend.`);
+            // Implement status update logic here
+          }
+        };
 
         // Initial fetch
         fetchAllIncidents();
